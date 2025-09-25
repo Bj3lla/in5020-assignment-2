@@ -1,0 +1,1 @@
+// Implementation Class: implements the interface and contains the actual logic.

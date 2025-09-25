@@ -1,0 +1,1 @@
+// Server Main: the main class creates an instance of BankServerImpl and binds it to the RMI registry.

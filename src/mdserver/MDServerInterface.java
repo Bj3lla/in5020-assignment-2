@@ -1,0 +1,1 @@
+// Interface: defines the methods that remote clients (here, bank servers) can call.
