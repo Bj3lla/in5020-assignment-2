@@ -1,13 +1,13 @@
 package bankserver.utils;
 
+import bankserver.BankServerInterface; // <-- use interface, not Impl
 import java.io.*;
 import java.util.Scanner;
-import bankserver.BankServerImpl;
 
 public class CommandProcessor {
-    private final BankServerImpl bankServer;
+    private final BankServerInterface bankServer;
 
-    public CommandProcessor(BankServerImpl bankServer) {
+    public CommandProcessor(BankServerInterface bankServer) {
         this.bankServer = bankServer;
     }
 
@@ -16,7 +16,7 @@ public class CommandProcessor {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("> ");
-            String line = scanner.nextLine().trim();
+            String line = scanner.nextLine();
             if (!processCommand(line)) break;
         }
     }
@@ -26,12 +26,10 @@ public class CommandProcessor {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (!processCommand(line)) break;
-
-                // Random delay between 0.5s–1.5s
+                if (!processCommand(line.trim())) break;
+                // random delay between 0.5s–1.5s
                 double delay = 0.5 + Math.random();
-                Thread.sleep((long) (delay * 1000));
+                Thread.sleep((long)(delay * 1000));
             }
         }
     }
@@ -44,25 +42,24 @@ public class CommandProcessor {
         try {
             switch (cmd) {
                 case "memberInfo" -> bankServer.printMembers();
-                case "getQuickBalance" -> System.out.println("Balance: " + bankServer.getQuickBalance(parts[1]));
+                case "getQuickBalance" -> bankServer.getQuickBalance(parts[1]);
                 case "getSyncedBalance" -> bankServer.getSyncedBalance(parts[1]);
-                case "deposit" -> bankServer.deposit(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
+                case "deposit" -> bankServer.deposit(parts[1], Double.parseDouble(parts[2]));
                 case "addInterest" -> {
                     if (parts.length == 2) bankServer.addInterestAll(Double.parseDouble(parts[1]));
-                    else bankServer.addInterest(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
+                    else bankServer.addInterest(parts[1], Double.parseDouble(parts[2]));
                 }
                 case "getHistory" -> bankServer.getHistory();
                 case "cleanHistory" -> bankServer.cleanHistory();
                 case "checkTxStatus" -> bankServer.checkTxStatus(parts[1]);
                 case "sleep" -> Thread.sleep(Long.parseLong(parts[1]) * 1000);
                 case "exit" -> {
-                    System.out.println("Exiting...");
                     return false;
                 }
                 default -> System.out.println("Unknown command: " + cmd);
             }
         } catch (Exception e) {
-            System.err.println("Error processing command '" + commandLine + "': " + e.getMessage());
+            System.err.println("Error processing command: " + commandLine + " -> " + e.getMessage());
         }
         return true;
     }
