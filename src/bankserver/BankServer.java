@@ -2,6 +2,8 @@
 package bankserver;
 
 import java.rmi.Naming;
+import bankserver.utils.CommandProcessor;
+import common.CurrencyConverter;
 
 public class BankServer {
     public static void main(String[] args) throws Exception {
@@ -16,13 +18,20 @@ public class BankServer {
         String currencyFile = args[3];
         String batchFile = args.length > 4 ? args[4] : null;
 
+        // ✅ Instantiate CurrencyConverter once, pass it as dependency
+        CurrencyConverter converter = new CurrencyConverter(currencyFile);
+
         String serverName = accountName + "_Replica" + System.currentTimeMillis();
-        BankServerImpl bankServer = new BankServerImpl(serverName);
+        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerAddr, replicas);
 
         Naming.rebind("rmi://localhost/" + serverName, bankServer);
         System.out.println("BankServer " + serverName + " is running and registered.");
-        
-        // TODO: connect to MDServer and register this replica
-        // TODO: load currencyFile and process commands (interactive or batch)
+
+        CommandProcessor processor = new CommandProcessor(bankServer);
+        if (batchFile == null) {
+            processor.runInteractive();
+        } else {
+            processor.runBatch(batchFile);
+        }
     }
 }
