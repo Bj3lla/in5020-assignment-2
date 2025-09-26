@@ -59,39 +59,43 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
     // --- Transaction commands ---
     @Override
-    public synchronized void deposit(String currency, double amount) throws RemoteException {
-        String command = "deposit " + currency + " " + amount;
-        String txId = serverName + "_" + outstandingCounter++;
-        Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
-        outstandingCollection.add(tx);
-        mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+    public synchronized String deposit(String currency, double amount) throws RemoteException {
+    String command = "deposit " + currency + " " + amount;
+    String txId = serverName + "_" + outstandingCounter++;
+    Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
+    outstandingCollection.add(tx);
+    mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+    return txId; // return ID
     }
 
     @Override
-    public synchronized void addInterest(String currency, double percent) throws RemoteException {
+    public synchronized String addInterest(String currency, double percent) throws RemoteException {
         String command = "addInterest " + currency + " " + percent;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     @Override
-    public synchronized void addInterestAll(double percent) throws RemoteException {
+    public synchronized String addInterestAll(double percent) throws RemoteException {
         String command = "addInterestAll " + percent;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     @Override
-    public synchronized void getSyncedBalance(String currency) throws RemoteException {
+    public synchronized String getSyncedBalance(String currency) throws RemoteException {
         String txId = serverName + "_" + outstandingCounter++;
         String command = "getSyncedBalance " + currency.toUpperCase();
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     // --- Apply transactions received from MDServer ---

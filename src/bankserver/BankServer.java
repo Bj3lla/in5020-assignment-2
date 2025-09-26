@@ -30,7 +30,7 @@ public class BankServer {
         System.out.println("BankServer " + serverName + " is running and registered.");
 
         // Command processor: interactive or batch
-        CommandProcessor processor = new CommandProcessor(bankServer);
+        CommandProcessor processor = new CommandProcessor(bankServer, serverName);
         if (batchFile == null) processor.runInteractive();
         else processor.runBatch(batchFile);
     }

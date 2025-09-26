@@ -112,6 +112,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
     }
 
     // Called by replicas to acknowledge receipt
+    @Override
     public synchronized void ack(String txId, String replicaName) {
         Set<String> waiting = pendingAcks.get(txId);
         if (waiting != null) {

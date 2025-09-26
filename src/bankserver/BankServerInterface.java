@@ -8,10 +8,10 @@ import java.rmi.RemoteException;
 public interface BankServerInterface extends Remote {
 
     // --- Transactions ---
-    void deposit(String currency, double amount) throws RemoteException;
-    void addInterest(String currency, double percent) throws RemoteException;
-    void addInterestAll(double percent) throws RemoteException;
-    void getSyncedBalance(String currency) throws RemoteException;
+    String deposit(String currency, double amount) throws RemoteException;
+    String addInterest(String currency, double percent) throws RemoteException;
+    String addInterestAll(double percent) throws RemoteException;
+    String getSyncedBalance(String currency) throws RemoteException;
     double getQuickBalance(String currency) throws RemoteException;
 
     // --- History / status ---
