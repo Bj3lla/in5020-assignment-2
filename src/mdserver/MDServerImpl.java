@@ -1,13 +1,12 @@
 package mdserver;
 
+import bankserver.BankServerInterface;
+import common.GroupInfo;
+import common.Message;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
-
-import bankserver.BankServerInterface;
-import common.GroupInfo;
-import common.Message;
 import mdserver.utils.TimerUtils;
 
 public class MDServerImpl extends UnicastRemoteObject implements MDServerInterface {
@@ -79,7 +78,10 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
                     System.err.println("Replica " + replicaName + " failed, removing from group.");
                     replicas.remove(replicaName);
                     pendingAcks.getOrDefault(txId, new HashSet<>()).remove(replicaName);
-                    updateMembership();
+                    try {
+                        updateMembership();
+                    } catch (RemoteException ex) {
+                    }
                 }
             }
         }, attempt == 0 ? 0 : 2000L); // first attempt immediate, retries every 2s

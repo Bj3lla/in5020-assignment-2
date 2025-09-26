@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 public interface MDServerInterface extends Remote {
     void registerReplica(BankServerInterface replica) throws RemoteException;
     void broadcastMessage(Message msg) throws RemoteException;
+    void updateMembership() throws RemoteException;
 
     // Explicit ACK from BankServer
     void ack(String txId, String replicaName) throws RemoteException;
