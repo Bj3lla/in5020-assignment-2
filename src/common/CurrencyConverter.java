@@ -13,7 +13,7 @@ public class CurrencyConverter {
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.trim().split("\\s+");
                 if (parts.length == 2) {
-                    rates.put(parts[0].toUpperCase(), Double.parseDouble(parts[1]));
+                    rates.put(parts[0].toUpperCase(), Double.valueOf(parts[1]));
                 }
             }
         }

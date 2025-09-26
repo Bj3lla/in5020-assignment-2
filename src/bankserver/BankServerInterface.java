@@ -1,5 +1,4 @@
-// Interface: defines the methods that remote clients can call.
-package bankserver; 
+package bankserver;
 
 import common.GroupInfo;
 import common.Message;
@@ -7,8 +6,27 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface BankServerInterface extends Remote {
-    void receiveMessage(Message msg) throws RemoteException;
+
+    // --- Transactions ---
+    void deposit(String currency, double amount) throws RemoteException;
+    void addInterest(String currency, double percent) throws RemoteException;
+    void addInterestAll(double percent) throws RemoteException;
+    void getSyncedBalance(String currency) throws RemoteException;
+    double getQuickBalance(String currency) throws RemoteException;
+
+    // --- History / status ---
+    void getHistory() throws RemoteException;
+    void cleanHistory() throws RemoteException;
+    void checkTxStatus(String txId) throws RemoteException;
+
+    // --- Membership ---
+    void printMembers() throws RemoteException;
     void updateMembership(GroupInfo groupInfo) throws RemoteException;
-    String getServerName() throws RemoteException;
+
+    // --- Messaging from MDServer ---
+    void receiveMessage(Message msg) throws RemoteException;
     void ack(String messageId) throws RemoteException;
+
+    // --- Identification ---
+    String getServerName() throws RemoteException;
 }

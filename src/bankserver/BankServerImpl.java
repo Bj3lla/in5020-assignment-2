@@ -1,12 +1,11 @@
 // Implementation Class: implements the interface and contains the actual logic.
 package bankserver;
 
+import common.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
-import common.*;
 import mdserver.MDServerInterface;
 
 public class BankServerImpl extends UnicastRemoteObject implements BankServerInterface {
@@ -49,6 +48,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     }
 
     // --- Transaction commands ---
+    @Override
     public synchronized void deposit(String currency, double amount) throws RemoteException {
         String command = "deposit " + currency + " " + amount;
         String txId = serverName + "_" + outstandingCounter++;
@@ -57,6 +57,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
     }
 
+    @Override
     public synchronized void addInterest(String currency, double percent) throws RemoteException {
         String command = "addInterest " + currency + " " + percent;
         String txId = serverName + "_" + outstandingCounter++;
@@ -65,6 +66,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
     }
 
+    @Override
     public synchronized void addInterestAll(double percent) throws RemoteException {
         String command = "addInterestAll " + percent;
         String txId = serverName + "_" + outstandingCounter++;
@@ -73,6 +75,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
     }
 
+    @Override
     public synchronized void getSyncedBalance(String currency) throws RemoteException {
         String txId = serverName + "_" + outstandingCounter++;
         String command = "getSyncedBalance " + currency.toUpperCase();
@@ -124,11 +127,13 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     }
 
     // --- Balance queries ---
+    @Override
     public synchronized double getQuickBalance(String currency) {
         return balances.getOrDefault(currency.toUpperCase(), 0.0);
     }
 
     // --- History / members / status ---
+    @Override
     public synchronized void getHistory() {
         System.out.println("Executed transactions:");
         for (Transaction tx : executedList) System.out.println(tx);
@@ -136,11 +141,13 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         for (Transaction tx : outstandingCollection) System.out.println(tx);
     }
 
+    @Override
     public synchronized void cleanHistory() {
         executedList.clear();
         outstandingCollection.clear();
     }
 
+    @Override
     public synchronized void checkTxStatus(String txId) {
         boolean executed = executedList.stream().anyMatch(tx -> tx.getUniqueId().equals(txId));
         boolean outstanding = outstandingCollection.stream().anyMatch(tx -> tx.getUniqueId().equals(txId));
@@ -149,6 +156,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         else System.out.println("Transaction " + txId + " not found.");
     }
 
+    @Override
     public synchronized void printMembers() {
         System.out.println("Current members: " + members);
     }
