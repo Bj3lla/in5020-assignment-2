@@ -50,7 +50,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             }
         }
 
-        String txId = UUID.randomUUID().toString(); // unique ID for ACK tracking
+        String txId = msg.getTransactions().get(0).getUniqueId(); //use the transaction ID
         Set<String> waitingReplicas = new HashSet<>(replicas.keySet());
         pendingAcks.put(txId, waitingReplicas);
 
@@ -58,7 +58,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             sendWithRetry(replicaName, msg, txId, 0);
         }
 
-        // Wait until all ACKs received
+        // Periodically check until all ACKs are in
         TimerUtils.schedule(() -> checkPendingAcks(txId, msg), 100);
     }
 
@@ -68,8 +68,8 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
 
         TimerUtils.schedule(() -> {
             try {
-                replica.receiveMessage(msg); // message sent
-                // Replica must call ack(txId) to confirm
+                replica.receiveMessage(msg); // send message to replica
+                // ✅ Replica will call ack(txId, replicaName)
             } catch (Exception e) {
                 if (attempt < 3) { // retry up to 3 times (2s intervals)
                     System.out.println("Retrying " + replicaName + " for tx " + txId);
@@ -81,6 +81,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
                     try {
                         updateMembership();
                     } catch (RemoteException ex) {
+                        // ignore
                     }
                 }
             }
@@ -90,10 +91,11 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
     private void checkPendingAcks(String txId, Message msg) {
         Set<String> waiting = pendingAcks.getOrDefault(txId, new HashSet<>());
         if (!waiting.isEmpty()) {
-            // Schedule next check in 100ms
+            // Still waiting → recheck in 100ms
             TimerUtils.schedule(() -> checkPendingAcks(txId, msg), 100);
         } else {
-            // All ACKs received, process next message
+            // ✅ All ACKs received
+            pendingAcks.remove(txId);
             broadcasting = false;
             processNextMessage();
         }
@@ -111,11 +113,15 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         }
     }
 
-    // Called by replicas to acknowledge receipt
+    // ✅ Called by replicas when they’ve applied the message
+    @Override
     public synchronized void ack(String txId, String replicaName) {
         Set<String> waiting = pendingAcks.get(txId);
         if (waiting != null) {
             waiting.remove(replicaName);
+            if (waiting.isEmpty()) {
+                System.out.println("All ACKs received for tx " + txId);
+            }
         }
     }
 }

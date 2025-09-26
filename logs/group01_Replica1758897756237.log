@@ -1,0 +1,36 @@
+[1758897756460] === Replica group01_Replica1758897756237 started ===
+[1758897756464] memberInfo executed
+[1758897757510] Synced balance requested for USD (txId=group01_Replica1758897756237_0)
+[1758897758910] Quick balance for USD: 0.0
+[1758897759440] Deposit 100 USD (txId=group01_Replica1758897756237_1)
+[1758897760689] checkTxStatus resolved placeholder to group01_Replica1758897756237_1
+[1758897762112] Synced balance requested for USD (txId=group01_Replica1758897756237_2)
+[1758897763296] Quick balance for USD: 100.0
+[1758897764202] Deposit 100 NOK (txId=group01_Replica1758897756237_3)
+[1758897765084] Quick balance for NOK: 100.0
+[1758897775973] Slept 10.0s
+[1758897777221] Synced balance requested for USD (txId=group01_Replica1758897756237_4)
+[1758897778560] AddInterest 10% to USD (txId=group01_Replica1758897756237_5)
+[1758897779241] Synced balance requested for USD (txId=group01_Replica1758897756237_6)
+[1758897780069] Deposit 100 EUR (txId=group01_Replica1758897756237_7)
+[1758897781071] Deposit 50 NOK (txId=group01_Replica1758897756237_8)
+[1758897782176] Deposit 40 USD (txId=group01_Replica1758897756237_9)
+[1758897783648] Deposit 30 NOK (txId=group01_Replica1758897756237_10)
+[1758897784801] Deposit 20 USD (txId=group01_Replica1758897756237_11)
+[1758897785546] Deposit 10 NOK (txId=group01_Replica1758897756237_12)
+[1758897786136] AddInterest 10% to EUR (txId=group01_Replica1758897756237_13)
+[1758897786663] Synced balance requested for NOK (txId=group01_Replica1758897756237_14)
+[1758897788135] Quick balance for NOK: 190.0
+[1758897789042] Deposit 100 USD (txId=group01_Replica1758897756237_15)
+[1758897789979] Deposit 100 EUR (txId=group01_Replica1758897756237_16)
+[1758897791412] AddInterestAll 20% (txId=group01_Replica1758897756237_17)
+[1758897791983] checkTxStatus resolved placeholder to group01_Replica1758897756237_16
+[1758897793480] memberInfo executed
+[1758897794883] History requested
+[1758897795604] History cleaned
+[1758897796390] Deposit 100 NOK (txId=group01_Replica1758897756237_18)
+[1758897805004] Slept 8.0s
+[1758897805733] Synced balance requested for USD (txId=group01_Replica1758897756237_19)
+[1758897806738] Quick balance for USD: 324.0
+[1758897807575] History requested
+[1758897808497] Exiting.

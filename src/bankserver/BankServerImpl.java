@@ -1,10 +1,12 @@
 // Implementation Class: implements the interface and contains the actual logic.
+// Implementation Class: implements the interface and contains the actual logic.
 package bankserver;
 
 import common.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import mdserver.MDServerInterface;
 
 public class BankServerImpl extends UnicastRemoteObject implements BankServerInterface {
@@ -14,7 +16,9 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     private final CurrencyConverter converter;
     private final int replicas;
 
-    private final Map<String, Double> balances = new HashMap<>();
+    private final Map<String, Double> balances = new ConcurrentHashMap<>();
+    private final List<Message> history = Collections.synchronizedList(new ArrayList<>());
+
     private final List<Transaction> executedList = new ArrayList<>();
     private final List<Transaction> outstandingCollection = new ArrayList<>();
     private int orderCounter = 0;
@@ -51,47 +55,49 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         } catch (Exception e) {
             System.err.println("Failed to connect to MDServer: " + e.getMessage());
             e.printStackTrace();
-            // Fail fast instead of continuing with mdServer = null
             throw new RemoteException("Cannot connect to MDServer", e);
         }
     }
 
-
     // --- Transaction commands ---
     @Override
-    public synchronized void deposit(String currency, double amount) throws RemoteException {
+    public synchronized String deposit(String currency, double amount) throws RemoteException {
         String command = "deposit " + currency + " " + amount;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     @Override
-    public synchronized void addInterest(String currency, double percent) throws RemoteException {
+    public synchronized String addInterest(String currency, double percent) throws RemoteException {
         String command = "addInterest " + currency + " " + percent;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     @Override
-    public synchronized void addInterestAll(double percent) throws RemoteException {
+    public synchronized String addInterestAll(double percent) throws RemoteException {
         String command = "addInterestAll " + percent;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     @Override
-    public synchronized void getSyncedBalance(String currency) throws RemoteException {
+    public synchronized String getSyncedBalance(String currency) throws RemoteException {
         String txId = serverName + "_" + outstandingCounter++;
         String command = "getSyncedBalance " + currency.toUpperCase();
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
         mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
+        return txId;
     }
 
     // --- Apply transactions received from MDServer ---
@@ -99,9 +105,16 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     public synchronized void receiveMessage(Message msg) throws RemoteException {
         for (Transaction tx : msg.getTransactions()) {
             applyTransaction(tx);
+
+            // ACK for each transaction after applying
+            if (mdServer != null) {
+                try {
+                    mdServer.ack(tx.getUniqueId(), serverName);
+                } catch (Exception e) {
+                    System.err.println("Failed to ACK tx " + tx.getUniqueId() + " from " + serverName);
+                }
+            }
         }
-        // Explicit ACK to MDServer
-        mdServer.ack(msg.getSenderId(), serverName);
     }
 
     private synchronized void applyTransaction(Transaction tx) {
@@ -111,17 +124,20 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 String currency = parts[1].toUpperCase();
                 double amount = Double.parseDouble(parts[2]);
                 balances.put(currency, balances.getOrDefault(currency, 0.0) + amount);
+                System.out.println(serverName + " applied deposit " + amount + " " + currency);
             }
             case "addInterest" -> {
                 String cur = parts[1].toUpperCase();
                 double pct = Double.parseDouble(parts[2]);
                 balances.put(cur, balances.get(cur) * (1 + pct / 100.0));
+                System.out.println(serverName + " applied interest " + pct + "% to " + cur);
             }
             case "addInterestAll" -> {
                 double pct = Double.parseDouble(parts[1]);
                 for (String cur : balances.keySet()) {
                     balances.put(cur, balances.get(cur) * (1 + pct / 100.0));
                 }
+                System.out.println(serverName + " applied interest " + pct + "% to all currencies");
             }
             case "getSyncedBalance" -> {
                 if (tx.getUniqueId().startsWith(serverName)) {
