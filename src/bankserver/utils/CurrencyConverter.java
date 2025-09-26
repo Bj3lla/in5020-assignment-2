@@ -17,17 +17,17 @@ public class CurrencyConverter {
                 }
             }
         }
-        rates.putIfAbsent("USD", 1.0);
+        rates.putIfAbsent("USD", 1.0); // default currency
     }
 
     public double toUSD(String currency, double amount) {
-        return amount * rates.get(currency.toUpperCase());
+        return amount * rates.getOrDefault(currency.toUpperCase(), 0.0);
     }
 
     public double fromUSD(String currency, double amount) {
-        return amount / rates.get(currency.toUpperCase());
+        return amount / rates.getOrDefault(currency.toUpperCase(), 1.0);
     }
-    
+
     public Set<String> supportedCurrencies() {
         return Collections.unmodifiableSet(rates.keySet());
     }

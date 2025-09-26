@@ -1,4 +1,3 @@
-// Server Main: the main class creates an instance of BankServerImpl and binds it to the RMI registry.
 package bankserver;
 
 import java.rmi.Naming;
@@ -8,30 +7,32 @@ import common.CurrencyConverter;
 public class BankServer {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.out.println("Usage: BankServer <MDServer address> <account name> <#replicas> <currency file> [batch file]");
+            System.out.println("Usage: BankServer <MDServer host> <account name> <#replicas> <currency file> [batch file]");
             return;
         }
 
-        String mdServerAddr = args[0];
+        String mdServerHost = args[0]; // Only the host, e.g., "localhost"
         String accountName = args[1];
         int replicas = Integer.parseInt(args[2]);
         String currencyFile = args[3];
         String batchFile = args.length > 4 ? args[4] : null;
 
-        // ✅ Instantiate CurrencyConverter once, pass it as dependency
+        // Initialize currency converter
         CurrencyConverter converter = new CurrencyConverter(currencyFile);
 
+        // Create server name
         String serverName = accountName + "_Replica" + System.currentTimeMillis();
-        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerAddr, replicas);
 
+        // Instantiate BankServerImpl
+        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHost, replicas);
+
+        // Bind to RMI registry
         Naming.rebind("rmi://localhost/" + serverName, bankServer);
         System.out.println("BankServer " + serverName + " is running and registered.");
 
+        // Command processor: interactive or batch
         CommandProcessor processor = new CommandProcessor(bankServer);
-        if (batchFile == null) {
-            processor.runInteractive();
-        } else {
-            processor.runBatch(batchFile);
-        }
+        if (batchFile == null) processor.runInteractive();
+        else processor.runBatch(batchFile);
     }
 }

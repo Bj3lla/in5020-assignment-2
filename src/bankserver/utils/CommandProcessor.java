@@ -16,7 +16,7 @@ public class CommandProcessor {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("> ");
-            String line = scanner.nextLine();
+            String line = scanner.nextLine().trim();
             if (!processCommand(line)) break;
         }
     }
@@ -26,15 +26,16 @@ public class CommandProcessor {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (!processCommand(line.trim())) break;
-                // random delay between 0.5s–1.5s
+                line = line.trim();
+                if (!processCommand(line)) break;
+
+                // Random delay between 0.5s–1.5s
                 double delay = 0.5 + Math.random();
-                Thread.sleep((long)(delay * 1000));
+                Thread.sleep((long) (delay * 1000));
             }
         }
     }
 
-    // Command dispatcher
     private boolean processCommand(String commandLine) {
         if (commandLine.isEmpty()) return true;
         String[] parts = commandLine.split("\\s+");
@@ -43,7 +44,7 @@ public class CommandProcessor {
         try {
             switch (cmd) {
                 case "memberInfo" -> bankServer.printMembers();
-                case "getQuickBalance" -> bankServer.getQuickBalance(parts[1]);
+                case "getQuickBalance" -> System.out.println("Balance: " + bankServer.getQuickBalance(parts[1]));
                 case "getSyncedBalance" -> bankServer.getSyncedBalance(parts[1]);
                 case "deposit" -> bankServer.deposit(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
                 case "addInterest" -> {
@@ -55,12 +56,13 @@ public class CommandProcessor {
                 case "checkTxStatus" -> bankServer.checkTxStatus(parts[1]);
                 case "sleep" -> Thread.sleep(Long.parseLong(parts[1]) * 1000);
                 case "exit" -> {
+                    System.out.println("Exiting...");
                     return false;
                 }
                 default -> System.out.println("Unknown command: " + cmd);
             }
         } catch (Exception e) {
-            System.err.println("Error processing command: " + commandLine + " -> " + e.getMessage());
+            System.err.println("Error processing command '" + commandLine + "': " + e.getMessage());
         }
         return true;
     }
