@@ -2,7 +2,6 @@
 package bankserver;
 
 import common.*;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
@@ -24,7 +23,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     private MDServerInterface mdServer;
     private final List<String> members = new ArrayList<>();
 
-    public BankServerImpl(String serverName, CurrencyConverter converter, String mdServerHost, int replicas) throws RemoteException {
+    public BankServerImpl(String serverName, CurrencyConverter converter, String mdServerHostPort, int replicas) throws RemoteException {
         super();
         this.serverName = serverName;
         this.converter = converter;
@@ -35,17 +34,28 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
             balances.put(currency, 0.0);
         }
 
-        // Connect to MDServer on host with hardcoded port 1099
+        // Connect to MDServer
         try {
-            String mdServerURL = "rmi://" + mdServerHost + ":1099/MDServer"; 
-            mdServer = (MDServerInterface) Naming.lookup(mdServerURL);
+            // Expect mdServerHostPort like "localhost:1099"
+            String[] parts = mdServerHostPort.split(":");
+            if (parts.length != 2) throw new IllegalArgumentException("MDServer host:port must be in format host:port");
+
+            String host = parts[0];
+            String port = parts[1];
+            String mdServerURL = "rmi://" + host + ":" + port + "/MDServer";
+
+            mdServer = (mdserver.MDServerInterface) java.rmi.Naming.lookup(mdServerURL);
             mdServer.registerReplica(this);
             System.out.println("Connected to MDServer at " + mdServerURL);
+
         } catch (Exception e) {
             System.err.println("Failed to connect to MDServer: " + e.getMessage());
             e.printStackTrace();
+            // Fail fast instead of continuing with mdServer = null
+            throw new RemoteException("Cannot connect to MDServer", e);
         }
     }
+
 
     // --- Transaction commands ---
     @Override

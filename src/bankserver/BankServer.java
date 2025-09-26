@@ -1,17 +1,16 @@
 package bankserver;
 
-import java.rmi.Naming;
 import bankserver.utils.CommandProcessor;
 import common.CurrencyConverter;
 
 public class BankServer {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.out.println("Usage: BankServer <MDServer host> <account name> <#replicas> <currency file> [batch file]");
+            System.out.println("Usage: BankServer <MDServer host:port> <account name> <#replicas> <currency file> [batch file]");
             return;
         }
 
-        String mdServerHost = args[0]; // Only the host, e.g., "localhost"
+        String mdServerHostPort = args[0]; // e.g., "localhost:1099"
         String accountName = args[1];
         int replicas = Integer.parseInt(args[2]);
         String currencyFile = args[3];
@@ -24,10 +23,10 @@ public class BankServer {
         String serverName = accountName + "_Replica" + System.currentTimeMillis();
 
         // Instantiate BankServerImpl
-        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHost, replicas);
+        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHostPort, replicas);
 
         // Bind to RMI registry
-        Naming.rebind("rmi://localhost/" + serverName, bankServer);
+        java.rmi.Naming.rebind("rmi://localhost/" + serverName, bankServer);
         System.out.println("BankServer " + serverName + " is running and registered.");
 
         // Command processor: interactive or batch
