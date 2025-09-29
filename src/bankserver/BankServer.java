@@ -1,5 +1,7 @@
 package bankserver;
 
+import java.io.File;
+
 import bankserver.utils.CommandProcessor;
 import common.CurrencyConverter;
 
@@ -26,7 +28,7 @@ public class BankServer {
         BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHostPort, replicas);
 
         // Bind to RMI registry
-        java.rmi.Naming.rebind("rmi://localhost/" + serverName, bankServer);
+        java.rmi.Naming.rebind("rmi://" + mdServerHostPort + File.separator + serverName, bankServer);
         System.out.println("BankServer " + serverName + " is running and registered.");
 
         // Command processor: interactive or batch
