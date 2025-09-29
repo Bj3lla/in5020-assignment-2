@@ -1,8 +1,9 @@
 // Implementation Class: implements the interface and contains the actual logic.
-// Implementation Class: implements the interface and contains the actual logic.
 package bankserver;
 
 import common.*;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
@@ -52,7 +53,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
             mdServer.registerReplica(this);
             System.out.println("Connected to MDServer at " + mdServerURL);
 
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | MalformedURLException | NotBoundException | RemoteException e) {
             System.err.println("Failed to connect to MDServer: " + e.getMessage());
             e.printStackTrace();
             throw new RemoteException("Cannot connect to MDServer", e);
@@ -106,11 +107,11 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         for (Transaction tx : msg.getTransactions()) {
             applyTransaction(tx);
 
-            // ACK for each transaction after applying
+            // ✅ ACK for each transaction after applying
             if (mdServer != null) {
                 try {
                     mdServer.ack(tx.getUniqueId(), serverName);
-                } catch (Exception e) {
+                } catch (RemoteException e) {
                     System.err.println("Failed to ACK tx " + tx.getUniqueId() + " from " + serverName);
                 }
             }
