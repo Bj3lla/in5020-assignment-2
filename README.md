@@ -7,12 +7,18 @@ Navigate to the root folder (Assignment2), and run this to compile the files
 javac -d bin src/common/*.java src/bankserver/*.java src/bankserver/utils/*.java src/mdserver/*.java src/mdserver/utils/*.java 
 ```
 
-then run this to connect to a port
+Now start the RMI Registry:
+
+```
+cd bin && rmiregistry 1099
+```
+
+then in a second terminal run this to connect to a port
 ```
 java -cp bin mdserver.MDServer 1099
 ```
 
-lastly, open a new terminal window, and run:
+lastly, open a third terminal window, and run the script to start the banking server replicas:
 ```
 ./start_replicas.sh
 ```
