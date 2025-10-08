@@ -32,7 +32,7 @@ public class BankServer {
         String serverName = accountName;
 
         // Instantiate BankServerImpl
-        BankServerImpl bankServer = new BankServerImpl(mdServerHostPort, converter, mdServerHostPort, replicas);
+        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHostPort, replicas);
         System.out.println("BankServer started for account: " + accountName);
 
         // Bind to RMI registry using parsed host and port
