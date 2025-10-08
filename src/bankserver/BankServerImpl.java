@@ -8,6 +8,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+
 import mdserver.MDServerInterface;
 
 public class BankServerImpl extends UnicastRemoteObject implements BankServerInterface {
@@ -15,13 +17,14 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
     private final String serverName;
     private final CurrencyConverter converter;
-    private final int replicas;
+    private final int initialReplicas;
+    private final CountDownLatch initialSyncLatch = new CountDownLatch(1);
 
-    private final Map<String, Double> balances = new ConcurrentHashMap<>();
+    private Map<String, Double> balances = new ConcurrentHashMap<>();
     private final List<Message> history = Collections.synchronizedList(new ArrayList<>());
 
-    private final List<Transaction> executedList = new ArrayList<>();
-    private final List<Transaction> outstandingCollection = new ArrayList<>();
+    private List<Transaction> executedList = new ArrayList<>();
+    private List<Transaction> outstandingCollection = new ArrayList<>();
     private int orderCounter = 0;
     private int outstandingCounter = 0;
 
@@ -32,7 +35,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         super();
         this.serverName = serverName;
         this.converter = converter;
-        this.replicas = replicas;
+        this.initialReplicas = replicas;
 
         // Initialize balances for all supported currencies
         for (String currency : converter.supportedCurrencies()) {
@@ -41,23 +44,58 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
         // Connect to MDServer
         try {
-            // Expect mdServerHostPort like "localhost:1099"
-            String[] parts = mdServerHostPort.split(":");
-            if (parts.length != 2) throw new IllegalArgumentException("MDServer host:port must be in format host:port");
-
-            String host = parts[0];
-            String port = parts[1];
-            String mdServerURL = "rmi://" + host + ":" + port + "/MDServer";
-
-            mdServer = (mdserver.MDServerInterface) java.rmi.Naming.lookup(mdServerURL);
-            mdServer.registerReplica(this);
-            System.out.println("Connected to MDServer at " + mdServerURL);
-
-        } catch (IllegalArgumentException | MalformedURLException | NotBoundException | RemoteException e) {
-            System.err.println("Failed to connect to MDServer: " + e.getMessage());
-            e.printStackTrace();
-            throw new RemoteException("Cannot connect to MDServer", e);
+            initializeState(mdServerHostPort);
+        } catch (Exception e) {
+            throw new RemoteException("Failed to initialize bank server state.", e);
         }
+    }
+
+    private void initializeState(String mdServerHostPort) throws Exception {
+        // Connect to MDServer to see if other replicas already exist
+        String mdServerURL = "rmi://" + mdServerHostPort + "/MDServer";
+        mdServer = (mdserver.MDServerInterface) java.rmi.Naming.lookup(mdServerURL);
+
+        List<String> currentMembers = mdServer.getGroupMembers(this.serverName);
+
+        if (currentMembers.isEmpty()) {
+            // This is the first replica, initialize with a clean state
+            System.out.println(serverName + " is the first replica. Initializing with empty state.");
+            for (String currency : converter.supportedCurrencies()) {
+                balances.put(currency, 0.0);
+            }
+        } else {
+            // This is a new replica joining an existing group. Perform state transfer.
+            System.out.println(serverName + " is joining an existing group. Performing state transfer.");
+            String existingMemberName = currentMembers.get(0); // Pick the first member
+            
+            BankServerInterface existingReplica = (BankServerInterface) java.rmi.Naming.lookup("rmi://" + mdServerHostPort + "/" + existingMemberName);
+            AccountState state = existingReplica.getAccountState();
+
+            // Apply the state
+            synchronized(this) {
+                this.balances = new ConcurrentHashMap<>(state.balances);
+                this.executedList = Collections.synchronizedList(new ArrayList<>(state.executedList));
+                this.outstandingCollection = Collections.synchronizedList(new ArrayList<>(state.outstandingCollection));
+                this.orderCounter = state.orderCounter;
+            }
+            System.out.println("State transfer complete. Synced with " + existingMemberName);
+        }
+        
+        // Now, officially register with the MD server
+        mdServer.registerReplica(this);
+        System.out.println("Connected to MDServer at " + mdServerURL);
+    }
+
+    @Override
+    public synchronized AccountState getAccountState() throws RemoteException {
+        // Create a snapshot of the current state to send to a new replica
+        return new AccountState(new HashMap<>(balances), new ArrayList<>(executedList), new ArrayList<>(outstandingCollection), orderCounter);
+    }
+
+    public void awaitInitialSync() throws InterruptedException {
+        System.out.println(serverName + " is waiting for " + initialReplicas + " replicas to join...");
+        initialSyncLatch.await(); // This line will block until the latch is released
+        System.out.println(serverName + " initial sync complete. Starting command processing.");
     }
 
     // --- Transaction commands ---
@@ -176,7 +214,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         for (Transaction tx : msg.getTransactions()) {
             applyTransaction(tx);
 
-            // ✅ ACK for each transaction after applying
+            // ACK for each transaction after applying
             if (mdServer != null) {
                 try {
                     mdServer.ack(tx.getUniqueId(), serverName);
@@ -279,6 +317,12 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         members.clear();
         members.addAll(groupInfo.getMembers());
         System.out.println(serverName + " membership updated: " + members);
+
+        // Check if the initial group has formed
+        if (members.size() >= initialReplicas && initialSyncLatch.getCount() > 0) {
+            System.out.println("Initial replica count of " + initialReplicas + " reached. Releasing sync latch.");
+            initialSyncLatch.countDown(); // Release the latch
+        }
     }
 
     @Override

@@ -39,6 +39,9 @@ public class BankServer {
         java.rmi.Naming.rebind("rmi://" + mdServerHost + ":" + mdServerPort + "/" + serverName, bankServer);
         System.out.println("BankServer " + serverName + " is running and registered.");
 
+        // Wait for sync before processing commands
+        bankServer.awaitInitialSync();
+
         // Command processor: interactive or batch
         CommandProcessor processor = new CommandProcessor(bankServer, serverName);
         if (batchFile == null) {

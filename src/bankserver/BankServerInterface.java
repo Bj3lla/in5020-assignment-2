@@ -1,5 +1,6 @@
 package bankserver;
 
+import common.AccountState;
 import common.GroupInfo;
 import common.Message;
 import java.rmi.Remote;
@@ -29,4 +30,7 @@ public interface BankServerInterface extends Remote {
 
     // --- Identification ---
     String getServerName() throws RemoteException;
+
+    // --- State Transfer ---
+    AccountState getAccountState() throws RemoteException;
 }
