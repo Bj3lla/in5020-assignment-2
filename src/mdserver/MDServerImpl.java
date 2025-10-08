@@ -69,7 +69,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         TimerUtils.schedule(() -> {
             try {
                 replica.receiveMessage(msg); // send message to replica
-                // ✅ Replica will call ack(txId, replicaName)
+                // Replica will call ack(txId, replicaName)
             } catch (RemoteException e) {
                 if (attempt < 3) { // retry up to 3 times (2s intervals)
                     System.out.println("Retrying " + replicaName + " for tx " + txId);
@@ -94,7 +94,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             // Still waiting → recheck in 100ms
             TimerUtils.schedule(() -> checkPendingAcks(txId, msg), 100);
         } else {
-            // ✅ All ACKs received
+            // All ACKs received
             pendingAcks.remove(txId);
             broadcasting = false;
             processNextMessage();
@@ -113,7 +113,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         }
     }
 
-    // ✅ Called by replicas when they’ve applied the message
+    // Called by replicas when they’ve applied the message
     @Override
     public synchronized void ack(String txId, String replicaName) {
         Set<String> waiting = pendingAcks.get(txId);
