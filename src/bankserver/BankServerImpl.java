@@ -1,8 +1,9 @@
 // Implementation Class: implements the interface and contains the actual logic.
-// Implementation Class: implements the interface and contains the actual logic.
 package bankserver;
 
 import common.*;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
@@ -52,7 +53,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
             mdServer.registerReplica(this);
             System.out.println("Connected to MDServer at " + mdServerURL);
 
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | MalformedURLException | NotBoundException | RemoteException e) {
             System.err.println("Failed to connect to MDServer: " + e.getMessage());
             e.printStackTrace();
             throw new RemoteException("Cannot connect to MDServer", e);
@@ -62,6 +63,17 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     // --- Transaction commands ---
     @Override
     public synchronized String deposit(String currency, double amount) throws RemoteException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive.");
+        }
+
+        // Convert the deposit amount to USD
+        double amountInUSD = converter.toUSD(currency, amount);
+
+        // Update the balance in USD
+        balances.put("USD", balances.getOrDefault("USD", 0.0) + amountInUSD);
+
+        // Create and broadcast the transaction
         String command = "deposit " + currency + " " + amount;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
@@ -72,7 +84,25 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
     @Override
     public synchronized String addInterest(String currency, double percent) throws RemoteException {
-        String command = "addInterest " + currency + " " + percent;
+        if (currency == null || currency.isEmpty()) {
+            // Apply interest to all currencies
+            applyInterestToAll(percent);
+        } else {
+            // Convert the balance of the specified currency to USD
+            String upperCurrency = currency.toUpperCase();
+            double balanceInUSD = balances.getOrDefault("USD", 0.0);
+            double balanceInCurrency = converter.fromUSD(upperCurrency, balanceInUSD);
+
+            // Apply interest to the balance in the specified currency
+            double newBalanceInCurrency = balanceInCurrency * (1 + percent / 100);
+            double newBalanceInUSD = converter.toUSD(upperCurrency, newBalanceInCurrency);
+
+            // Update the balance in USD
+            balances.put("USD", newBalanceInUSD);
+        }
+
+        // Create and broadcast the transaction
+        String command = "addInterest " + (currency == null ? "ALL" : currency) + " " + percent;
         String txId = serverName + "_" + outstandingCounter++;
         Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
         outstandingCollection.add(tx);
@@ -90,14 +120,54 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         return txId;
     }
 
+    // Helper method to apply interest to all currencies
+    private synchronized void applyInterestToAll(double percent) {
+        double totalInUSD = balances.getOrDefault("USD", 0.0);
+
+        for (String currency : converter.supportedCurrencies()) {
+            if (!currency.equals("USD")) {
+                double balanceInCurrency = converter.fromUSD(currency, totalInUSD);
+                double newBalanceInCurrency = balanceInCurrency * (1 + percent / 100);
+                totalInUSD += converter.toUSD(currency, newBalanceInCurrency - balanceInCurrency);
+            }
+        }
+
+        // Update the total balance in USD
+        balances.put("USD", totalInUSD);
+    }
+
     @Override
     public synchronized String getSyncedBalance(String currency) throws RemoteException {
+        if (!converter.supportedCurrencies().contains(currency.toUpperCase())) {
+            throw new IllegalArgumentException("Unsupported currency: " + currency);
+        }
+
+        // Apply all outstanding transactions locally
+        applyOutstandingTransactions();
+
+        // Convert the total balance in USD to the specified currency
+        double balanceInUSD = balances.getOrDefault("USD", 0.0);
+        double balanceInCurrency = converter.fromUSD(currency.toUpperCase(), balanceInUSD);
+
+        System.out.println("Synchronized balance for " + currency + ": " + balanceInCurrency);
+
+        // Generate a transaction ID for tracking
         String txId = serverName + "_" + outstandingCounter++;
-        String command = "getSyncedBalance " + currency.toUpperCase();
-        Transaction tx = new Transaction(command, txId, System.currentTimeMillis());
-        outstandingCollection.add(tx);
-        mdServer.broadcastMessage(new Message(serverName, List.of(tx)));
         return txId;
+    }
+
+    // Helper method to apply all outstanding transactions
+    private synchronized void applyOutstandingTransactions() {
+        // Create a copy of the outstandingCollection to iterate over
+        List<Transaction> transactionsToApply = new ArrayList<>(outstandingCollection);
+
+        for (Transaction tx : transactionsToApply) {
+            applyTransaction(tx); // Apply the transaction
+            executedList.add(tx); // Move it to the executed list
+        }
+
+        // Clear the original outstandingCollection after processing
+        outstandingCollection.removeAll(transactionsToApply);
     }
 
     // --- Apply transactions received from MDServer ---
@@ -106,46 +176,53 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
         for (Transaction tx : msg.getTransactions()) {
             applyTransaction(tx);
 
-            // ACK for each transaction after applying
+            // ✅ ACK for each transaction after applying
             if (mdServer != null) {
                 try {
                     mdServer.ack(tx.getUniqueId(), serverName);
-                } catch (Exception e) {
+                } catch (RemoteException e) {
                     System.err.println("Failed to ACK tx " + tx.getUniqueId() + " from " + serverName);
                 }
             }
         }
     }
 
+    // Helper method to apply a single transaction
     private synchronized void applyTransaction(Transaction tx) {
         String[] parts = tx.getCommand().split("\\s+");
-        switch (parts[0]) {
+        String command = parts[0];
+
+        switch (command) {
             case "deposit" -> {
                 String currency = parts[1].toUpperCase();
                 double amount = Double.parseDouble(parts[2]);
-                balances.put(currency, balances.getOrDefault(currency, 0.0) + amount);
-                System.out.println(serverName + " applied deposit " + amount + " " + currency);
+
+                // Convert the deposit amount to USD and update the balance
+                double amountInUSD = converter.toUSD(currency, amount);
+                balances.put("USD", balances.getOrDefault("USD", 0.0) + amountInUSD);
             }
             case "addInterest" -> {
-                String cur = parts[1].toUpperCase();
-                double pct = Double.parseDouble(parts[2]);
-                balances.put(cur, balances.get(cur) * (1 + pct / 100.0));
-                System.out.println(serverName + " applied interest " + pct + "% to " + cur);
+                String currency = parts[1].toUpperCase();
+                double percent = Double.parseDouble(parts[2]);
+
+                if (currency.equals("ALL")) {
+                    applyInterestToAll(percent);
+                } else {
+                    // Apply interest to the specified currency
+                    double balanceInUSD = balances.getOrDefault("USD", 0.0);
+                    double balanceInCurrency = converter.fromUSD(currency, balanceInUSD);
+                    double newBalanceInCurrency = balanceInCurrency * (1 + percent / 100);
+                    double newBalanceInUSD = converter.toUSD(currency, newBalanceInCurrency);
+
+                    // Update the balance in USD
+                    balances.put("USD", newBalanceInUSD);
+                }
             }
             case "addInterestAll" -> {
-                double pct = Double.parseDouble(parts[1]);
-                for (String cur : balances.keySet()) {
-                    balances.put(cur, balances.get(cur) * (1 + pct / 100.0));
-                }
-                System.out.println(serverName + " applied interest " + pct + "% to all currencies");
+                double percent = Double.parseDouble(parts[1]);
+                applyInterestToAll(percent);
             }
-            case "getSyncedBalance" -> {
-                if (tx.getUniqueId().startsWith(serverName)) {
-                    String cur = parts[1].toUpperCase();
-                    double value = balances.getOrDefault(cur, 0.0);
-                    System.out.println("Synced balance for " + cur + ": " + value);
-                }
-            }
+            default -> System.err.println("Unknown transaction command: " + command);
         }
         orderCounter++;
         executedList.add(tx);
@@ -155,7 +232,13 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     // --- Balance queries ---
     @Override
     public synchronized double getQuickBalance(String currency) {
-        return balances.getOrDefault(currency.toUpperCase(), 0.0);
+        if (!converter.supportedCurrencies().contains(currency.toUpperCase())) {
+            throw new IllegalArgumentException("Unsupported currency: " + currency);
+        }
+
+        // Convert the total balance in USD to the specified currency
+        double balanceInUSD = balances.getOrDefault("USD", 0.0);
+        return converter.fromUSD(currency.toUpperCase(), balanceInUSD);
     }
 
     // --- History / members / status ---
@@ -170,16 +253,20 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
     @Override
     public synchronized void cleanHistory() {
         executedList.clear();
-        outstandingCollection.clear();
     }
 
     @Override
     public synchronized void checkTxStatus(String txId) {
         boolean executed = executedList.stream().anyMatch(tx -> tx.getUniqueId().equals(txId));
         boolean outstanding = outstandingCollection.stream().anyMatch(tx -> tx.getUniqueId().equals(txId));
-        if (executed) System.out.println("Transaction " + txId + " has been executed.");
-        else if (outstanding) System.out.println("Transaction " + txId + " is outstanding.");
-        else System.out.println("Transaction " + txId + " not found.");
+
+        if (executed) {
+            System.out.println("Transaction " + txId + " has been executed.");
+        } else if (outstanding) {
+            System.out.println("Transaction " + txId + " is outstanding.");
+        } else {
+            System.out.println("Transaction " + txId + " not found.");
+        }
     }
 
     @Override

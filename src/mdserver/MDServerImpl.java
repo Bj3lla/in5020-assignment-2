@@ -70,7 +70,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             try {
                 replica.receiveMessage(msg); // send message to replica
                 // ✅ Replica will call ack(txId, replicaName)
-            } catch (Exception e) {
+            } catch (RemoteException e) {
                 if (attempt < 3) { // retry up to 3 times (2s intervals)
                     System.out.println("Retrying " + replicaName + " for tx " + txId);
                     sendWithRetry(replicaName, msg, txId, attempt + 1);
@@ -107,7 +107,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         for (BankServerInterface replica : replicas.values()) {
             try {
                 replica.updateMembership(info);
-            } catch (Exception e) {
+            } catch (RemoteException e) {
                 System.err.println("Failed to update membership for " + replica.getServerName());
             }
         }
