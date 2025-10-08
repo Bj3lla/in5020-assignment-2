@@ -9,4 +9,11 @@ then this to connect to a port:
 java -cp bin mdserver.MDServer 1099
 
 lastly, open a new terminal window, and run:
-java -cp bin bankserver.BankServer localhost:1099 group01 3 input/TradingRate.txt input/ExampleInputFile.txt
+./start_replicas.sh
+
+This will:
+- Start 3 members with Rep1 at timestamp 0
+- Start 1 new members with Rep2 at timestamp 5
+- Start 1 new members with Rep3 at timestamp 15
+
+The logs from all replicas will then be written to the logs/ directory. 

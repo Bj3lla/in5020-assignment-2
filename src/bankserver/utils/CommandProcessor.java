@@ -134,6 +134,7 @@ public class CommandProcessor {
                 case "exit" -> {
                     log("Exiting.");
                     logWriter.close();
+                    System.exit(0);
                     return false;
                 }
 

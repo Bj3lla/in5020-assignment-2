@@ -1,0 +1,39 @@
+memberInfo
+getSyncedBalance USD
+getQuickBalance USD
+deposit USD 100
+checkTxStatus 0
+getSyncedBalance EUR
+getQuickBalance EUR
+deposit NOK 100
+getQuickBalance NOK
+sleep 6
+getSyncedBalance USD
+addInterest NOK 10
+getSyncedBalance USD
+deposit DKK 100
+deposit NOK 50
+deposit GBP 40
+deposit USD 30
+deposit CHF 20
+deposit EUR 10
+addInterest 10
+sleep 7
+getSyncedBalance EUR
+getQuickBalance EUR
+deposit EUR 100
+deposit USD 100
+addInterest EUR 20
+checkTxStatus 11
+memberInfo
+getHistory
+cleanHistory
+deposit EUR 100
+sleep 8
+getSyncedBalance USD
+getQuickBalance USD
+sleep 30
+getSyncedBalance USD
+getQuickBalance USD
+getHistory
+exit
