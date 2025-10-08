@@ -20,10 +20,11 @@ public class BankServer {
         CurrencyConverter converter = new CurrencyConverter(currencyFile);
 
         // Create server name
-        String serverName = accountName + "_Replica" + System.currentTimeMillis();
+        String serverName = accountName;
 
         // Instantiate BankServerImpl
-        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHostPort, replicas);
+        BankServerImpl bankServer = new BankServerImpl(mdServerHostPort, converter, mdServerHostPort, replicas);
+        System.out.println("BankServer started for account: " + accountName);
 
         // Bind to RMI registry
         java.rmi.Naming.rebind("rmi://localhost/" + serverName, bankServer);
@@ -31,7 +32,11 @@ public class BankServer {
 
         // Command processor: interactive or batch
         CommandProcessor processor = new CommandProcessor(bankServer, serverName);
-        if (batchFile == null) processor.runInteractive();
-        else processor.runBatch(batchFile);
+        if (batchFile == null) {
+            processor.runInteractive();
+        }
+        else {
+        processor.runBatch(batchFile);
+        }
     }
 }

@@ -24,7 +24,7 @@ public class Transaction implements Serializable {
     public Transaction(String command, String uniqueId, long timestamp) {
         this.command = command;
         this.uniqueId = uniqueId;
-        this.timestamp = timestamp;
+        this.timestamp = timestamp; // for logging purposes
     }
 
     public String getCommand() {

@@ -64,71 +64,81 @@ public class CommandProcessor {
                 }
 
                 case "getQuickBalance" -> {
-                    double bal = bankServer.getQuickBalance(parts[1]);
-                    log("Quick balance for " + parts[1] + ": " + bal);
+                    if (parts.length < 2) {
+                        log("ERROR: Missing currency for getQuickBalance, defaulting to USD");
+                        bankServer.getQuickBalance("USD");
+                    } else {
+                        double bal = bankServer.getQuickBalance(parts[1]);
+                        log("Quick balance for " + parts[1] + ": " + bal);
+                    }
                 }
 
                 case "getSyncedBalance" -> {
-                    String txId = bankServer.getSyncedBalance(parts[1]);
-                    lastTxIds.put("getSyncedBalance", txId);
-                    log("Synced balance requested for " + parts[1] + " (txId=" + txId + ")");
+                    if (parts.length < 2) {
+                        log("ERROR: Missing currency for getSyncedBalance, defaulting to USD");
+                        bankServer.getSyncedBalance("USD");
+                    } else {
+                        bankServer.getSyncedBalance(parts[1]);
+                    }
                 }
 
                 case "deposit" -> {
-                    String txId = bankServer.deposit(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
-                    lastTxIds.put("deposit", txId);
-                    log("Deposit " + parts[2] + " " + parts[1] + " (txId=" + txId + ")");
+                    if (parts.length < 3) {
+                        log("ERROR: Missing arguments for deposit");
+                    } else {
+                        try {
+                            String txId = bankServer.deposit(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
+                            log("Deposit " + parts[2] + " " + parts[1] + " (txId=" + txId + ")");
+                        } catch (IllegalArgumentException e) {
+                            log("Error processing command: deposit " + parts[1] + " " + parts[2] + " -> " + e.getMessage());
+                        }
+                    }
                 }
 
                 case "addInterest" -> {
-                    String txId;
-                    if (parts.length == 2) {
-                        txId = bankServer.addInterestAll(Double.parseDouble(parts[1]));
-                        lastTxIds.put("addInterestAll", txId);
-                        log("AddInterestAll " + parts[1] + "% (txId=" + txId + ")");
+                    if (parts.length < 2) {
+                        log("ERROR: Missing arguments for addInterest");
                     } else {
-                        txId = bankServer.addInterest(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
-                        lastTxIds.put("addInterest", txId);
-                        log("AddInterest " + parts[2] + "% to " + parts[1] + " (txId=" + txId + ")");
+                        String txId;
+                        if (parts.length == 2) {
+                            txId = bankServer.addInterestAll(Double.parseDouble(parts[1]));
+                            log("AddInterestAll " + parts[1] + "% (txId=" + txId + ")");
+                        } else {
+                            txId = bankServer.addInterest(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
+                            log("AddInterest " + parts[2] + "% to " + parts[1] + " (txId=" + txId + ")");
+                        }
                     }
                 }
 
                 case "getHistory" -> {
                     bankServer.getHistory();
-                    log("History requested");
+                }
+
+                case "checkTxStatus" -> {
+                    if (parts.length < 2) {
+                        log("ERROR: Missing txId for checkTxStatus");
+                    } else {
+                        bankServer.checkTxStatus(parts[1]);
+                    }
                 }
 
                 case "cleanHistory" -> {
                     bankServer.cleanHistory();
-                    log("History cleaned");
-                }
-
-                case "checkTxStatus" -> {
-                    String arg = parts[1];
-                    String txId = null;
-
-                    if (arg.startsWith("<add")) {
-                        if (arg.contains("addInterest")) {
-                            txId = lastTxIds.getOrDefault("addInterestAll", lastTxIds.get("addInterest"));
-                        } else {
-                            txId = lastTxIds.get("deposit");
-                        }
-                        if (txId != null) {
-                            bankServer.checkTxStatus(txId);
-                            log("checkTxStatus resolved placeholder to " + txId);
-                        } else {
-                            log("ERROR: Could not resolve placeholder " + arg);
-                        }
-                    } else {
-                        bankServer.checkTxStatus(arg);
-                        log("checkTxStatus " + arg);
-                    }
+                    log("Transaction history cleaned");
                 }
 
                 case "sleep" -> {
-                    double seconds = Double.parseDouble(parts[1]);
-                    Thread.sleep((long) (seconds * 1000));
-                    log("Slept " + seconds + "s");
+                    if (parts.length < 2) {
+                        log("ERROR: Missing duration for sleep");
+                    } else {
+                        try {
+                            int duration = Integer.parseInt(parts[1]);
+                            log("Sleeping for " + duration + " seconds...");
+                            Thread.sleep(duration * 1000L);
+                        } catch (NumberFormatException e) {
+                            log("ERROR: Invalid duration for sleep");
+                        }
+                    }
                 }
 
                 case "exit" -> {

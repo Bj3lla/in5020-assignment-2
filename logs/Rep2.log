@@ -1,0 +1,84 @@
+localhost:1099 membership updated: [localhost:1099]
+Connected to MDServer at rmi://localhost:1099/MDServer
+BankServer started for account: group02
+BankServer group02 is running and registered.
+=== Replica group02 started ===
+Current members: [localhost:1099]
+memberInfo executed
+Synchronized balance for USD: 2000.0
+Quick balance for USD: 2000.0
+Deposit 70 EUR (txId=localhost:1099_1)
+Transaction 0 not found.
+Synchronized balance for EUR: 3720.0000000000005
+Quick balance for EUR: 3720.0000000000005
+Deposit 130 USD (txId=localhost:1099_3)
+Quick balance for NOK: 343.948717948718
+Sleeping for 5 seconds...
+Synchronized balance for USD: 3569.48717948718
+AddInterest 5% to USD (txId=localhost:1099_5)
+Synchronized balance for USD: 3935.3596153846165
+Deposit 110 NOK (txId=localhost:1099_7)
+Deposit 40 DKK (txId=localhost:1099_8)
+Deposit 50 EUR (txId=localhost:1099_9)
+Deposit 20 CHF (txId=localhost:1099_10)
+Deposit 30 GBP (txId=localhost:1099_11)
+Deposit 100 USD (txId=localhost:1099_12)
+AddInterest 3% to NOK (txId=localhost:1099_13)
+Sleeping for 6 seconds...
+Synchronized balance for EUR: 8630.444523689928
+Quick balance for EUR: 8630.444523689928
+Deposit 120 USD (txId=localhost:1099_15)
+Deposit 130 EUR (txId=localhost:1099_16)
+AddInterestAll 10% (txId=localhost:1099_17)
+Transaction 11 not found.
+Current members: [localhost:1099]
+memberInfo executed
+Executed transactions:
+[localhost:1099_3] deposit NOK 100.0 @ 2025-10-08 17:33:41.013
+[localhost:1099_3] deposit NOK 100.0 @ 2025-10-08 17:33:41.527
+[localhost:1099_3] deposit NOK 100.0 @ 2025-10-08 17:33:42.844
+[localhost:1099_1] deposit EUR 70.0 @ 2025-10-08 17:33:43.539
+[localhost:1099_1] deposit EUR 70.0 @ 2025-10-08 17:33:43.539
+[localhost:1099_1] deposit EUR 70.0 @ 2025-10-08 17:33:43.539
+[localhost:1099_3] deposit USD 130.0 @ 2025-10-08 17:33:48.217
+[localhost:1099_3] deposit USD 130.0 @ 2025-10-08 17:33:48.217
+[localhost:1099_3] deposit USD 130.0 @ 2025-10-08 17:33:48.217
+[localhost:1099_5] addInterest USD 5.0 @ 2025-10-08 17:33:55.727
+[localhost:1099_5] addInterest USD 5.0 @ 2025-10-08 17:33:55.727
+[localhost:1099_7] deposit NOK 110.0 @ 2025-10-08 17:33:57.594
+[localhost:1099_7] deposit NOK 110.0 @ 2025-10-08 17:33:57.594
+[localhost:1099_8] deposit DKK 40.0 @ 2025-10-08 17:33:58.194
+[localhost:1099_8] deposit DKK 40.0 @ 2025-10-08 17:33:58.194
+[localhost:1099_9] deposit EUR 50.0 @ 2025-10-08 17:33:59.041
+[localhost:1099_9] deposit EUR 50.0 @ 2025-10-08 17:33:59.041
+[localhost:1099_10] deposit CHF 20.0 @ 2025-10-08 17:34:00.434
+[localhost:1099_10] deposit CHF 20.0 @ 2025-10-08 17:34:00.434
+[localhost:1099_11] deposit GBP 30.0 @ 2025-10-08 17:34:01.063
+[localhost:1099_11] deposit GBP 30.0 @ 2025-10-08 17:34:01.063
+[localhost:1099_12] deposit USD 100.0 @ 2025-10-08 17:34:01.801
+[localhost:1099_12] deposit USD 100.0 @ 2025-10-08 17:34:01.801
+[localhost:1099_13] addInterest NOK 3.0 @ 2025-10-08 17:34:02.933
+[localhost:1099_13] addInterest NOK 3.0 @ 2025-10-08 17:34:02.933
+Outstanding transactions:
+[localhost:1099_15] deposit USD 120.0 @ 2025-10-08 17:34:12.609
+[localhost:1099_16] deposit EUR 130.0 @ 2025-10-08 17:34:14.010
+[localhost:1099_17] addInterestAll 10.0 @ 2025-10-08 17:34:15.044
+Transaction history cleaned
+Deposit 90 NOK (txId=localhost:1099_18)
+Sleeping for 7 seconds...
+Synchronized balance for USD: 14973.716280211862
+Quick balance for USD: 14973.716280211862
+Sleeping for 30 seconds...
+Synchronized balance for USD: 14973.716280211862
+Quick balance for USD: 14973.716280211862
+Executed transactions:
+[localhost:1099_15] deposit USD 120.0 @ 2025-10-08 17:34:12.609
+[localhost:1099_15] deposit USD 120.0 @ 2025-10-08 17:34:12.609
+[localhost:1099_16] deposit EUR 130.0 @ 2025-10-08 17:34:14.010
+[localhost:1099_16] deposit EUR 130.0 @ 2025-10-08 17:34:14.010
+[localhost:1099_17] addInterestAll 10.0 @ 2025-10-08 17:34:15.044
+[localhost:1099_17] addInterestAll 10.0 @ 2025-10-08 17:34:15.044
+[localhost:1099_18] deposit NOK 90.0 @ 2025-10-08 17:34:19.051
+[localhost:1099_18] deposit NOK 90.0 @ 2025-10-08 17:34:19.051
+Outstanding transactions:
+Exiting.
