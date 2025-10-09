@@ -13,6 +13,11 @@ Now start the RMI Registry:
 cd bin && rmiregistry 1099
 ```
 
+Alternatively, run this command to kill the current process listening on port 1099 and then start the RMI Registry:
+```
+sudo lsof -t -i:1099 | xargs kill -9 2>/dev/null; cd bin && rmiregistry 1099
+```
+
 then in a second terminal run this to connect to a port
 ```
 java -cp bin mdserver.MDServer 1099
