@@ -322,7 +322,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 double factor = 1.0 + (percent / 100.0);
                 
                 // Case 1: A specific currency is provided
-                if (parts.length == 3) {
+                if (parts.length == 3 && !"ALL".equalsIgnoreCase(parts[1])) {
                     String currency = parts[1].toUpperCase();
                     balances.computeIfPresent(currency, (_, v) -> v * factor);
                     System.out.println("Applied " + percent + "% interest to " + currency + ". New balance: " + balances.get(currency));
