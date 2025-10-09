@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * MDServerImpl manages multiple groups of bank server replicas.
@@ -59,7 +58,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         // This is a robust way to associate a replica with its group.
         String groupName = uniqueName.split("_")[0];
 
-        groups.computeIfAbsent(groupName, k -> new ConcurrentHashMap<>()).put(uniqueName, replica);
+        groups.computeIfAbsent(groupName, _ -> new ConcurrentHashMap<>()).put(uniqueName, replica);
         System.out.println("Replica registered: " + uniqueName + " to group " + groupName);
 
         // Notify all members of that group about the new membership list.
@@ -86,7 +85,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         }
 
         // Add the message to the correct group's queue.
-        Queue<Message> queue = messageQueues.computeIfAbsent(groupName, k -> new LinkedList<>());
+        Queue<Message> queue = messageQueues.computeIfAbsent(groupName, _ -> new LinkedList<>());
         synchronized (queue) {
             queue.add(msg);
         }
