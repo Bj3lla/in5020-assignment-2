@@ -48,3 +48,16 @@ java -cp bin bankserver.BankServer localhost:1099 group01 3 input/TradingRate.tx
 For this assignment, we haver assumed that negative values for deposits should be rejected. The program therefore rejects negative currency arguments and logs the error as following:
 
 Error processing command: deposit USD -100 -> Deposit amount must be positive.
+
+### Difference between getSyncedBalance and getQuickBalance
+getSyncedBalance - waits for all outstanding transactions to be executed before determining balance.
+getQuickBalance - does not wait, instantly returns the current balance from the caller replica, not including any outstanding transactions that will shortly after affect the value of the balance.
+
+### Workload separating
+
+We worked agile on the assignment, creating a common GitHub repo where we all listed issues and to-dos and everyone picked issues to code. We had success doing this despite some merge conflicts here and there.
+
+Before submitting the assignment, we coded together at IFI to fix the final bugs regarding synchronization of balance.
+
+### Important: Check the stdout logs before checking the logfiles
+Upon being disconnected, a replica will still produce logfiles, but these logfiles will be faulty in amount. This is due to the replica being removed from the MDS upon not answering within the expected response timeframe. Upon being removed from the MDS, no broadcasts from or to the replica will get through. 
