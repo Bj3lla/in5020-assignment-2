@@ -63,7 +63,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         System.out.println("Replica registered: " + uniqueName + " to group " + groupName);
 
         // Notify all members of that group about the new membership list.
-        updateMembership(groupName);
+        updateMembershipForGroup(groupName);
     }
 
     @Override
@@ -196,11 +196,11 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         if (members != null) {
             members.remove(replicaName);
             // Notify remaining members of the change.
-            updateMembership(groupName);
+            updateMembershipForGroup(groupName);
         }
     }
 
-    public void updateMembership(String groupName) {
+    private void updateMembershipForGroup(String groupName) {
         Map<String, BankServerInterface> members = groups.get(groupName);
         if (members == null) return;
 
@@ -216,6 +216,13 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
                     e1.printStackTrace();
                 }
             }
+        }
+    }
+
+    @Override
+    public synchronized void updateMembership() throws RemoteException {
+        for (String groupName : new ArrayList<>(groups.keySet())) {
+            updateMembershipForGroup(groupName);
         }
     }
 
