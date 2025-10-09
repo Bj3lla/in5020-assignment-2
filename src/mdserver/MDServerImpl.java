@@ -54,7 +54,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
 
     @Override
     public synchronized void registerReplica(BankServerInterface replica) throws RemoteException {
-        String uniqueName = replica.getServerName();
+        String uniqueName = replica.getinstanceName();
         // Assumption: The replica's unique name is in the format "groupName_someIdentifier"
         // This is a robust way to associate a replica with its group.
         String groupName = uniqueName.split("_")[0];
@@ -211,7 +211,7 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
                 replica.updateMembership(info);
             } catch (RemoteException e) {
                 try {
-                    System.err.println("Failed to update membership for " + replica.getServerName() + ". It might be down.");
+                    System.err.println("Failed to update membership for " + replica.getinstanceName() + ". It might be down.");
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }

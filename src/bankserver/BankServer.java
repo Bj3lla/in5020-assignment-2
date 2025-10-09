@@ -1,5 +1,7 @@
 package bankserver;
 
+import java.util.UUID;
+
 import bankserver.utils.CommandProcessor;
 import common.CurrencyConverter;
 
@@ -28,27 +30,26 @@ public class BankServer {
         // Initialize currency converter
         CurrencyConverter converter = new CurrencyConverter(currencyFile);
 
-        // Create server name
-        String serverName = accountName;
+        // Create a unique instance name for this replica, e.g., "group01_123e4567-e89b-12d3-a456-426614174000"
+        String instanceName = accountName + "_" + UUID.randomUUID().toString();
 
-        // Instantiate BankServerImpl
-        BankServerImpl bankServer = new BankServerImpl(serverName, converter, mdServerHostPort, replicas);
-        System.out.println("BankServer started for account: " + accountName);
+        // Instantiate BankServerImpl with its unique name
+        // We also pass a flag to choose the getSyncedBalance implementation ("correct" or "naive")
+        BankServerImpl bankServer = new BankServerImpl(instanceName, accountName, converter, mdServerHostPort, replicas, "correct");
+        System.out.println("BankServer instance " + instanceName + " started for account: " + accountName);
 
-        // Bind to RMI registry using parsed host and port
-        java.rmi.Naming.rebind("rmi://" + mdServerHost + ":" + mdServerPort + "/" + serverName, bankServer);
-        System.out.println("BankServer " + serverName + " is running and registered.");
+        // Bind to RMI registry using its unique name
+        java.rmi.Naming.rebind("rmi://" + mdServerHost + ":" + mdServerPort + "/" + instanceName, bankServer);
+        System.out.println("BankServer " + instanceName + " is running and registered.");
 
-        // Wait for sync before processing commands
+        // ... (awaitInitialSync and CommandProcessor logic remains the same) ...
         bankServer.awaitInitialSync();
-
-        // Command processor: interactive or batch
-        CommandProcessor processor = new CommandProcessor(bankServer, serverName);
+        
+        CommandProcessor processor = new CommandProcessor(bankServer, instanceName);
         if (batchFile == null) {
             processor.runInteractive();
-        }
-        else {
-        processor.runBatch(batchFile);
+        } else {
+            processor.runBatch(batchFile);
         }
     }
 }

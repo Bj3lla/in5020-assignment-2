@@ -11,7 +11,6 @@ public interface BankServerInterface extends Remote {
     // --- Transactions ---
     String deposit(String currency, double amount) throws RemoteException;
     String addInterest(String currency, double percent) throws RemoteException;
-    String addInterestAll(double percent) throws RemoteException;
     String getSyncedBalance(String currency) throws RemoteException;
     double getQuickBalance(String currency) throws RemoteException;
 
@@ -28,9 +27,7 @@ public interface BankServerInterface extends Remote {
     void receiveMessage(Message msg) throws RemoteException;
     void ack(String messageId) throws RemoteException;
 
-    // --- Identification ---
-    String getServerName() throws RemoteException;
-
     // --- State Transfer ---
     AccountState getAccountState() throws RemoteException;
+    String getinstanceName() throws RemoteException;
 }

@@ -101,7 +101,7 @@ public class CommandProcessor {
                     } else {
                         String txId;
                         if (parts.length == 2) {
-                            txId = bankServer.addInterestAll(Double.parseDouble(parts[1]));
+                            txId = bankServer.addInterest( null,Double.parseDouble(parts[1]));
                             log("AddInterestAll " + parts[1] + "% (txId=" + txId + ")");
                         } else {
                             txId = bankServer.addInterest(parts[1].toUpperCase(), Double.parseDouble(parts[2]));
