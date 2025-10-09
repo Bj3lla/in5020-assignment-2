@@ -80,6 +80,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 this.executedList = Collections.synchronizedList(new ArrayList<>(state.executedList));
                 this.outstandingCollection = Collections.synchronizedList(new ArrayList<>(state.outstandingCollection));
                 this.orderCounter = state.orderCounter;
+                System.out.println("State transfer details: " + balances.size() + " currencies, " + executedList.size() + " executed transactions, " + outstandingCollection.size() + " outstanding transactions, orderCounter=" + orderCounter);
             }
             System.out.println("State transfer complete. Synced with " + existingMemberName);
         }
@@ -108,30 +109,39 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 try {
                     broadcastOutstandingTransactions();
                 } catch (RemoteException e) {
-                    System.err.println("Error during periodic broadcast: " + e.getMessage());
+                    String detail = e.getMessage() != null ? e.getMessage() : e.toString();
+                    System.err.println("Error during periodic broadcast: " + detail);
                 }
             }
         };
         broadcastTimer.schedule(task, 10000L, 10000L); // Delay 10s, repeat every 10s
     }
 
-    private synchronized void broadcastOutstandingTransactions() throws RemoteException {
-        if (outstandingCollection.isEmpty() || mdServer == null) {
+    private void broadcastOutstandingTransactions() throws RemoteException {
+        if (mdServer == null) {
             return;
         }
 
-        // Create a copy of the list to broadcast. This batch of transactions will be sent.
-        List<Transaction> transactionsToBroadcast = new ArrayList<>(outstandingCollection);
-        
-        // Clears the collection. 
-        // New transactions can arrive after this, but they will wait for the next broadcast cycle.
-        outstandingCollection.clear();
+        List<Transaction> transactionsToBroadcast;
+        synchronized (outstandingCollection) {
+            if (outstandingCollection.isEmpty()) {
+                return;
+            }
+            transactionsToBroadcast = new ArrayList<>(outstandingCollection);
+        }
 
-        System.out.println(instanceName + " broadcasting and clearing " + transactionsToBroadcast.size() + " transactions.");
-        
-        // Send all the transactions that were in the collection in a single message.
+        System.out.println(instanceName + " broadcasting " + transactionsToBroadcast.size() + " transactions.");
+
         Message message = new Message(instanceName, transactionsToBroadcast);
-        mdServer.broadcastMessage(message);
+        try {
+            mdServer.broadcastMessage(message);
+            synchronized (outstandingCollection) {
+                outstandingCollection.removeAll(transactionsToBroadcast);
+            }
+        } catch (RemoteException e) {
+            System.err.println(instanceName + " failed to broadcast transactions: " + e);
+            throw e;
+        }
     }
 
 
@@ -139,8 +149,8 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
     @Override
     public synchronized String deposit(String currency, double amount) throws RemoteException {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Deposit amount must be positive.");
+        if (amount == 0.0) {
+            throw new IllegalArgumentException("Deposit amount cannot be zero.");
         }
         String command = "deposit " + currency + " " + amount;
         // Unique ID format: "<Bank server_instance_name> <outstanding_counter>"
@@ -221,15 +231,36 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
             outstandingCollection.add(tx);
 
             try {
+                // Trigger an immediate broadcast so this sync query is processed without waiting for the timer.
+                broadcastOutstandingTransactions();
+
                 // Block and wait for the transaction to be processed by the applyTransaction method.
                 // A timeout is included to prevent waiting forever.
                 Double balance = future.get(30, TimeUnit.SECONDS); 
                 System.out.println("Correct Synced Balance for " + currency + ": " + balance);
                 return "Correct synced balance for " + currency + " is: " + balance;
-            } catch (Exception e) {
+            } catch (TimeoutException e) {
+                pendingSyncBalanceRequests.remove(txId);
+                String detail = "Timed out waiting for synced balance for " + currency;
+                System.err.println(detail);
+                throw new RemoteException(detail, e);
+            } catch (InterruptedException e) {
+                pendingSyncBalanceRequests.remove(txId);
+                Thread.currentThread().interrupt();
+                String detail = "Interrupted while waiting for synced balance for " + currency;
+                System.err.println(detail);
+                throw new RemoteException(detail, e);
+            } catch (ExecutionException e) {
+                pendingSyncBalanceRequests.remove(txId);
+                String detail = e.getCause() != null ? e.getCause().toString() : e.toString();
+                System.err.println("Execution failed while getting synced balance for " + currency + ": " + detail);
+                throw new RemoteException("Failed to get synced balance for " + currency + ": " + detail, e.getCause());
+            }
+            catch (Exception e) {
                 pendingSyncBalanceRequests.remove(txId); // Clean up on failure.
-                System.err.println("Error getting synced balance: " + e.getMessage());
-                throw new RemoteException("Failed to get synced balance: " + e.getMessage());
+                String detail = e.getMessage() != null ? e.getMessage() : e.toString();
+                System.err.println("Unexpected error getting synced balance for " + currency + ": " + detail);
+                throw new RemoteException("Failed to get synced balance for " + currency + ": " + detail, e);
             }
         }
     }
@@ -268,7 +299,8 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                         future.complete(balance);
                     }
                 } catch (RemoteException e) {
-                    System.err.println("Error getting synced balance: " + e.getMessage());
+                    String detail = e.getMessage() != null ? e.getMessage() : e.toString();
+                    System.err.println("Error getting synced balance for " + currency + ": " + detail);
                 }
             }
             return;
@@ -290,7 +322,7 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 double factor = 1.0 + (percent / 100.0);
                 
                 // Case 1: A specific currency is provided
-                if (parts.length == 3) {
+                if (parts.length == 3 && !"ALL".equalsIgnoreCase(parts[1])) {
                     String currency = parts[1].toUpperCase();
                     balances.computeIfPresent(currency, (_, v) -> v * factor);
                     System.out.println("Applied " + percent + "% interest to " + currency + ". New balance: " + balances.get(currency));

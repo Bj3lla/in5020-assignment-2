@@ -34,7 +34,8 @@ public class CommandProcessor {
                 if (!processCommand(line)) break;
             }
         } catch (Exception e) {
-            String error = "Error in interactive mode: " + e.getMessage();
+            String detail = e.getMessage() != null ? e.getMessage() : e.toString();
+            String error = "Error in interactive mode: " + detail;
             System.err.println(error);
             e.printStackTrace();
             log(error);
@@ -157,7 +158,8 @@ public class CommandProcessor {
                 default -> log("Unknown command: " + cmd);
             }
         } catch (Exception e) {
-            String error = "Error processing command: " + commandLine + " -> " + e.getMessage();
+            String detail = e.getMessage() != null ? e.getMessage() : e.toString();
+            String error = "Error processing command: " + commandLine + " -> " + detail;
             System.err.println(error);
             e.printStackTrace();
             log(error);
