@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface MDServerInterface extends Remote {
     void registerReplica(BankServerInterface replica) throws RemoteException;
+    List<String> getGroupMembers(String groupName) throws RemoteException;
     void broadcastMessage(Message msg) throws RemoteException;
     void updateMembership(String groupName) throws RemoteException;
 
