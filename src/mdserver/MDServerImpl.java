@@ -130,11 +130,13 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             return;
         }
 
-        Set<String> waitingReplicas = new HashSet<>(members.keySet());
+        Set<String> waitingReplicas = ConcurrentHashMap.newKeySet();
+        waitingReplicas.addAll(members.keySet());
         pendingAcks.put(txId, waitingReplicas);
 
         System.out.println("Broadcasting tx " + txId + " to group " + groupName);
-        for (String replicaName : waitingReplicas) {
+        List<String> targets = new ArrayList<>(waitingReplicas);
+        for (String replicaName : targets) {
             sendWithRetry(replicaName, msg, txId, 0);
         }
 
