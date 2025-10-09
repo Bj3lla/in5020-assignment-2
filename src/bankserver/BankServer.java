@@ -11,10 +11,10 @@ public class BankServer {
         }
 
         String mdServerHostPort = args[0]; // e.g., "localhost:1099"
-        String accountName = args[1];
-        int replicas = Integer.parseInt(args[2]);
-        String currencyFile = args[3];
-        String batchFile = args.length > 4 ? args[4] : null;
+        String accountName = args[1]; // e.g., group1
+        int replicas = Integer.parseInt(args[2]); // e.g., 3
+        String currencyFile = args[3]; // e.g., "TradingRate.txt"
+        String batchFile = args.length > 4 ? args[4] : null; // e.g., input/Rep1.txt
 
         // Initialize currency converter
         CurrencyConverter converter = new CurrencyConverter(currencyFile);

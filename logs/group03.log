@@ -1,0 +1,22 @@
+[1759938543506] === Replica group03 started ===
+[1759938543509] memberInfo executed
+[1759938545436] Quick balance for EUR: 0.0
+[1759938546350] Deposit 50 NOK (txId=localhost:1099_1)
+[1759938547754] ERROR: Missing currency for getQuickBalance, defaulting to USD
+[1759938549176] Sleeping for 10 seconds...
+[1759938560083] ERROR: Missing currency for getSyncedBalance, defaulting to USD
+[1759938561391] AddInterestAll 7% (txId=localhost:1099_3)
+[1759938562666] ERROR: Missing currency for getSyncedBalance, defaulting to USD
+[1759938563603] Error processing command: deposit EUR -150 -> Deposit amount must be positive.
+[1759938565009] Error processing command: deposit USD -100 -> Deposit amount must be positive.
+[1759938566204] Deposit 10 DKK (txId=localhost:1099_5)
+[1759938567131] Deposit 30 CHF (txId=localhost:1099_6)
+[1759938567960] Error processing command: deposit NOK -100 -> Deposit amount must be positive.
+[1759938568814] Deposit 50 GBP (txId=localhost:1099_7)
+[1759938570221] AddInterestAll 20% (txId=localhost:1099_8)
+[1759938571334] Sleeping for 9 seconds...
+[1759938581841] memberInfo executed
+[1759938583150] Quick balance for USD: 958296.947299288
+[1759938584031] Sleeping for 30 seconds...
+[1759938615681] Quick balance for USD: 958296.947299288
+[1759938618338] Exiting.

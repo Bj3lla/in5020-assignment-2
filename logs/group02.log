@@ -1,0 +1,29 @@
+[1759938533474] === Replica group02 started ===
+[1759938533477] memberInfo executed
+[1759938536326] Quick balance for USD: 3000.0
+[1759938537203] Deposit 70 EUR (txId=localhost:1099_1)
+[1759938540665] Quick balance for EUR: 3720.0000000000005
+[1759938541686] Deposit 130 USD (txId=localhost:1099_3)
+[1759938542888] Quick balance for NOK: 343.948717948718
+[1759938543736] Sleeping for 5 seconds...
+[1759938550609] AddInterest 5% to USD (txId=localhost:1099_5)
+[1759938552417] Deposit 110 NOK (txId=localhost:1099_7)
+[1759938553238] Deposit 40 DKK (txId=localhost:1099_8)
+[1759938553836] Deposit 50 EUR (txId=localhost:1099_9)
+[1759938554495] Deposit 20 CHF (txId=localhost:1099_10)
+[1759938555526] Deposit 30 GBP (txId=localhost:1099_11)
+[1759938556852] Deposit 100 USD (txId=localhost:1099_12)
+[1759938558112] AddInterest 3% to NOK (txId=localhost:1099_13)
+[1759938559459] Sleeping for 6 seconds...
+[1759938567129] Quick balance for EUR: 8630.444523689928
+[1759938568278] Deposit 120 USD (txId=localhost:1099_15)
+[1759938569487] Deposit 130 EUR (txId=localhost:1099_16)
+[1759938570848] AddInterestAll 10% (txId=localhost:1099_17)
+[1759938572951] memberInfo executed
+[1759938575180] Transaction history cleaned
+[1759938576168] Deposit 90 NOK (txId=localhost:1099_18)
+[1759938577206] Sleeping for 7 seconds...
+[1759938586707] Quick balance for USD: 14973.716280211862
+[1759938587801] Sleeping for 30 seconds...
+[1759938619947] Quick balance for USD: 14973.716280211862
+[1759938622800] Exiting.

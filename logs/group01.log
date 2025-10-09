@@ -1,0 +1,87 @@
+[1759938528495] === Replica group01 started ===
+[1759938528499] memberInfo executed
+[1759938528500] === Replica group01 started ===
+[1759938528504] memberInfo executed
+[1759938528506] === Replica group01 started ===
+[1759938528509] memberInfo executed
+[1759938530318] Quick balance for USD: 0.0
+[1759938530615] Quick balance for USD: 0.0
+[1759938530649] Quick balance for USD: 0.0
+[1759938531433] Deposit 100 USD (txId=localhost:1099_1)
+[1759938531549] Deposit 100 USD (txId=localhost:1099_1)
+[1759938531946] Deposit 100 USD (txId=localhost:1099_1)
+[1759938533581] Quick balance for EUR: 234.0
+[1759938534380] Quick balance for EUR: 585.0
+[1759938535001] Deposit 100 NOK (txId=localhost:1099_3)
+[1759938535329] Quick balance for EUR: 234.0
+[1759938535763] Quick balance for NOK: 120.0
+[1759938535779] Deposit 100 NOK (txId=localhost:1099_3)
+[1759938536145] Deposit 100 NOK (txId=localhost:1099_3)
+[1759938536926] Sleeping for 6 seconds...
+[1759938537096] Quick balance for NOK: 150.0
+[1759938537619] Quick balance for NOK: 120.0
+[1759938538377] Sleeping for 6 seconds...
+[1759938538499] Sleeping for 6 seconds...
+[1759938544334] AddInterest 10% to NOK (txId=localhost:1099_5)
+[1759938545972] AddInterest 10% to NOK (txId=localhost:1099_5)
+[1759938546392] Deposit 100 DKK (txId=localhost:1099_7)
+[1759938546572] AddInterest 10% to NOK (txId=localhost:1099_5)
+[1759938547169] Deposit 50 NOK (txId=localhost:1099_8)
+[1759938548585] Deposit 40 GBP (txId=localhost:1099_9)
+[1759938548644] Deposit 100 DKK (txId=localhost:1099_7)
+[1759938548818] Deposit 100 DKK (txId=localhost:1099_7)
+[1759938549482] Deposit 30 USD (txId=localhost:1099_10)
+[1759938549766] Deposit 50 NOK (txId=localhost:1099_8)
+[1759938550082] Deposit 50 NOK (txId=localhost:1099_8)
+[1759938550323] Deposit 20 CHF (txId=localhost:1099_11)
+[1759938551040] Deposit 40 GBP (txId=localhost:1099_9)
+[1759938551261] Deposit 40 GBP (txId=localhost:1099_9)
+[1759938551696] Deposit 10 EUR (txId=localhost:1099_12)
+[1759938551795] Deposit 30 USD (txId=localhost:1099_10)
+[1759938551962] Deposit 30 USD (txId=localhost:1099_10)
+[1759938552406] Deposit 20 CHF (txId=localhost:1099_11)
+[1759938552558] Deposit 20 CHF (txId=localhost:1099_11)
+[1759938552931] AddInterestAll 10% (txId=localhost:1099_13)
+[1759938553238] Deposit 10 EUR (txId=localhost:1099_12)
+[1759938553469] Sleeping for 7 seconds...
+[1759938553636] Deposit 10 EUR (txId=localhost:1099_12)
+[1759938553883] AddInterestAll 10% (txId=localhost:1099_13)
+[1759938554555] AddInterestAll 10% (txId=localhost:1099_13)
+[1759938555369] Sleeping for 7 seconds...
+[1759938555774] Sleeping for 7 seconds...
+[1759938561673] Quick balance for EUR: 9573.726212173142
+[1759938562701] Deposit 100 EUR (txId=localhost:1099_15)
+[1759938563923] Quick balance for EUR: 10257.725914273138
+[1759938564077] Deposit 100 USD (txId=localhost:1099_16)
+[1759938564672] Quick balance for EUR: 9573.726212173142
+[1759938565237] Deposit 100 EUR (txId=localhost:1099_15)
+[1759938565281] AddInterest 20% to EUR (txId=localhost:1099_17)
+[1759938565859] Deposit 100 EUR (txId=localhost:1099_15)
+[1759938566498] Deposit 100 USD (txId=localhost:1099_16)
+[1759938567108] Deposit 100 USD (txId=localhost:1099_16)
+[1759938567542] memberInfo executed
+[1759938567729] AddInterest 20% to EUR (txId=localhost:1099_17)
+[1759938568412] AddInterest 20% to EUR (txId=localhost:1099_17)
+[1759938569173] memberInfo executed
+[1759938569512] Transaction history cleaned
+[1759938570184] memberInfo executed
+[1759938570421] Deposit 100 EUR (txId=localhost:1099_18)
+[1759938570925] Transaction history cleaned
+[1759938571675] Sleeping for 8 seconds...
+[1759938571829] Deposit 100 EUR (txId=localhost:1099_18)
+[1759938572775] Transaction history cleaned
+[1759938573067] Sleeping for 8 seconds...
+[1759938573749] Deposit 100 EUR (txId=localhost:1099_18)
+[1759938574339] Sleeping for 8 seconds...
+[1759938581308] Quick balance for USD: 12460.722859426773
+[1759938582217] Sleeping for 30 seconds...
+[1759938582663] Quick balance for USD: 13302.568646626769
+[1759938584064] Sleeping for 30 seconds...
+[1759938584115] Quick balance for USD: 12460.722859426773
+[1759938584753] Sleeping for 30 seconds...
+[1759938613655] Quick balance for USD: 12460.722859426773
+[1759938615466] Quick balance for USD: 13302.568646626769
+[1759938616138] Exiting.
+[1759938616186] Quick balance for USD: 12460.722859426773
+[1759938617109] Exiting.
+[1759938618422] Exiting.

@@ -1,0 +1,101 @@
+localhost:1099 membership updated: [localhost:1099]
+Connected to MDServer at rmi://localhost:1099/MDServer
+BankServer started for account: group03
+BankServer group03 is running and registered.
+=== Replica group03 started ===
+Current members: [localhost:1099]
+memberInfo executed
+Synchronized balance for EUR: 0.0
+Quick balance for EUR: 0.0
+Deposit 50 NOK (txId=localhost:1099_1)
+ERROR: Missing currency for getQuickBalance, defaulting to USD
+Sleeping for 10 seconds...
+ERROR: Missing currency for getSyncedBalance, defaulting to USD
+Synchronized balance for USD: 27744.33456720831
+AddInterestAll 7% (txId=localhost:1099_3)
+ERROR: Missing currency for getSyncedBalance, defaulting to USD
+Synchronized balance for USD: 54577.305400979676
+Error processing command: deposit EUR -150 -> Deposit amount must be positive.
+Error processing command: deposit USD -100 -> Deposit amount must be positive.
+Deposit 10 DKK (txId=localhost:1099_5)
+Deposit 30 CHF (txId=localhost:1099_6)
+Error processing command: deposit NOK -100 -> Deposit amount must be positive.
+Deposit 50 GBP (txId=localhost:1099_7)
+AddInterestAll 20% (txId=localhost:1099_8)
+Sleeping for 9 seconds...
+Current members: [localhost:1099]
+memberInfo executed
+Synchronized balance for USD: 958296.947299288
+Quick balance for USD: 958296.947299288
+Sleeping for 30 seconds...
+Synchronized balance for USD: 958296.947299288
+Quick balance for USD: 958296.947299288
+Executed transactions:
+[localhost:1099_5] addInterest NOK 10.0 @ 2025-10-08 17:49:04.330
+[localhost:1099_5] addInterest NOK 10.0 @ 2025-10-08 17:49:05.968
+[localhost:1099_1] deposit NOK 50.0 @ 2025-10-08 17:49:06.342
+[localhost:1099_7] deposit DKK 100.0 @ 2025-10-08 17:49:06.390
+[localhost:1099_5] addInterest NOK 10.0 @ 2025-10-08 17:49:06.568
+[localhost:1099_8] deposit NOK 50.0 @ 2025-10-08 17:49:07.167
+[localhost:1099_9] deposit GBP 40.0 @ 2025-10-08 17:49:08.581
+[localhost:1099_7] deposit DKK 100.0 @ 2025-10-08 17:49:08.641
+[localhost:1099_7] deposit DKK 100.0 @ 2025-10-08 17:49:08.814
+[localhost:1099_10] deposit USD 30.0 @ 2025-10-08 17:49:09.478
+[localhost:1099_8] deposit NOK 50.0 @ 2025-10-08 17:49:09.763
+[localhost:1099_8] deposit NOK 50.0 @ 2025-10-08 17:49:10.078
+[localhost:1099_11] deposit CHF 20.0 @ 2025-10-08 17:49:10.319
+[localhost:1099_5] addInterest USD 5.0 @ 2025-10-08 17:49:10.605
+[localhost:1099_9] deposit GBP 40.0 @ 2025-10-08 17:49:11.037
+[localhost:1099_9] deposit GBP 40.0 @ 2025-10-08 17:49:11.258
+[localhost:1099_12] deposit EUR 10.0 @ 2025-10-08 17:49:11.692
+[localhost:1099_10] deposit USD 30.0 @ 2025-10-08 17:49:11.792
+[localhost:1099_10] deposit USD 30.0 @ 2025-10-08 17:49:11.961
+[localhost:1099_11] deposit CHF 20.0 @ 2025-10-08 17:49:12.402
+[localhost:1099_7] deposit NOK 110.0 @ 2025-10-08 17:49:12.414
+[localhost:1099_11] deposit CHF 20.0 @ 2025-10-08 17:49:12.556
+[localhost:1099_13] addInterestAll 10.0 @ 2025-10-08 17:49:12.927
+[localhost:1099_8] deposit DKK 40.0 @ 2025-10-08 17:49:13.234
+[localhost:1099_12] deposit EUR 10.0 @ 2025-10-08 17:49:13.234
+[localhost:1099_12] deposit EUR 10.0 @ 2025-10-08 17:49:13.632
+[localhost:1099_9] deposit EUR 50.0 @ 2025-10-08 17:49:13.832
+[localhost:1099_13] addInterestAll 10.0 @ 2025-10-08 17:49:13.880
+[localhost:1099_10] deposit CHF 20.0 @ 2025-10-08 17:49:14.492
+[localhost:1099_13] addInterestAll 10.0 @ 2025-10-08 17:49:14.553
+[localhost:1099_11] deposit GBP 30.0 @ 2025-10-08 17:49:15.522
+[localhost:1099_12] deposit USD 100.0 @ 2025-10-08 17:49:16.848
+[localhost:1099_13] addInterest NOK 3.0 @ 2025-10-08 17:49:18.108
+[localhost:1099_1] deposit NOK 50.0 @ 2025-10-08 17:49:06.342
+[localhost:1099_1] deposit NOK 50.0 @ 2025-10-08 17:49:06.342
+[localhost:1099_3] addInterestAll 7.0 @ 2025-10-08 17:49:21.388
+[localhost:1099_3] addInterestAll 7.0 @ 2025-10-08 17:49:21.388
+[localhost:1099_3] addInterestAll 7.0 @ 2025-10-08 17:49:21.388
+[localhost:1099_15] deposit EUR 100.0 @ 2025-10-08 17:49:22.697
+[localhost:1099_16] deposit USD 100.0 @ 2025-10-08 17:49:24.073
+[localhost:1099_15] deposit EUR 100.0 @ 2025-10-08 17:49:25.234
+[localhost:1099_17] addInterest EUR 20.0 @ 2025-10-08 17:49:25.279
+[localhost:1099_15] deposit EUR 100.0 @ 2025-10-08 17:49:25.856
+[localhost:1099_5] deposit DKK 10.0 @ 2025-10-08 17:49:26.201
+[localhost:1099_16] deposit USD 100.0 @ 2025-10-08 17:49:26.495
+[localhost:1099_16] deposit USD 100.0 @ 2025-10-08 17:49:27.105
+[localhost:1099_6] deposit CHF 30.0 @ 2025-10-08 17:49:27.129
+[localhost:1099_17] addInterest EUR 20.0 @ 2025-10-08 17:49:27.725
+[localhost:1099_15] deposit USD 120.0 @ 2025-10-08 17:49:28.275
+[localhost:1099_17] addInterest EUR 20.0 @ 2025-10-08 17:49:28.408
+[localhost:1099_7] deposit GBP 50.0 @ 2025-10-08 17:49:28.811
+[localhost:1099_16] deposit EUR 130.0 @ 2025-10-08 17:49:29.483
+[localhost:1099_8] addInterestAll 20.0 @ 2025-10-08 17:49:30.217
+[localhost:1099_18] deposit EUR 100.0 @ 2025-10-08 17:49:30.418
+[localhost:1099_17] addInterestAll 10.0 @ 2025-10-08 17:49:30.844
+[localhost:1099_18] deposit EUR 100.0 @ 2025-10-08 17:49:31.825
+[localhost:1099_18] deposit EUR 100.0 @ 2025-10-08 17:49:33.745
+[localhost:1099_18] deposit NOK 90.0 @ 2025-10-08 17:49:36.165
+[localhost:1099_5] deposit DKK 10.0 @ 2025-10-08 17:49:26.201
+[localhost:1099_5] deposit DKK 10.0 @ 2025-10-08 17:49:26.201
+[localhost:1099_6] deposit CHF 30.0 @ 2025-10-08 17:49:27.129
+[localhost:1099_6] deposit CHF 30.0 @ 2025-10-08 17:49:27.129
+[localhost:1099_7] deposit GBP 50.0 @ 2025-10-08 17:49:28.811
+[localhost:1099_7] deposit GBP 50.0 @ 2025-10-08 17:49:28.811
+[localhost:1099_8] addInterestAll 20.0 @ 2025-10-08 17:49:30.217
+[localhost:1099_8] addInterestAll 20.0 @ 2025-10-08 17:49:30.217
+Outstanding transactions:
+Exiting.
