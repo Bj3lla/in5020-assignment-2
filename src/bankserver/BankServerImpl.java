@@ -292,13 +292,13 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
                 // Case 1: A specific currency is provided
                 if (parts.length == 3) {
                     String currency = parts[1].toUpperCase();
-                    balances.computeIfPresent(currency, (k, v) -> v * factor);
+                    balances.computeIfPresent(currency, (_, v) -> v * factor);
                     System.out.println("Applied " + percent + "% interest to " + currency + ". New balance: " + balances.get(currency));
                 } 
                 // Case 2: No currency is specified, apply to all 
                 else {
                     System.out.println("Applying " + percent + "% interest to ALL currencies.");
-                    balances.replaceAll((currency, balance) -> balance * factor);
+                    balances.replaceAll((_, balance) -> balance * factor);
                 }
                 break;
             }

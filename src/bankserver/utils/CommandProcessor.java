@@ -2,15 +2,11 @@ package bankserver.utils;
 
 import bankserver.BankServerInterface;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.Scanner;
 
 public class CommandProcessor {
     private final BankServerInterface bankServer;
-
-    // Keeps track of last transaction IDs
-    private final Map<String, String> lastTxIds = new HashMap<>();
 
     // Logging
     private final PrintWriter logWriter;
@@ -29,11 +25,21 @@ public class CommandProcessor {
 
     // Interactive mode
     public void runInteractive() {
+        
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("> ");
-            String line = scanner.nextLine();
-            if (!processCommand(line)) break;
+        try {
+            while (true) {
+                System.out.print("> ");
+                String line = scanner.nextLine();
+                if (!processCommand(line)) break;
+            }
+        } catch (Exception e) {
+            String error = "Error in interactive mode: " + e.getMessage();
+            System.err.println(error);
+            e.printStackTrace();
+            log(error);
+        }finally{
+            scanner.close();
         }
     }
 
