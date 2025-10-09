@@ -10,6 +10,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * MDServerImpl manages multiple groups of bank server replicas.
@@ -46,6 +48,8 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
      * Value: A set of replica names that still need to send an ACK.
      */
     private final Map<String, Set<String>> pendingAcks = new ConcurrentHashMap<>();
+
+    private final ExecutorService sendExecutor = Executors.newCachedThreadPool();
 
     public MDServerImpl() throws RemoteException {
         super();
@@ -137,35 +141,44 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
         System.out.println("Broadcasting tx " + txId + " to group " + groupName);
         List<String> targets = new ArrayList<>(waitingReplicas);
         for (String replicaName : targets) {
-            sendWithRetry(replicaName, msg, txId, 0);
+            sendWithRetry(groupName, replicaName, msg, txId, 0);
         }
 
         // Schedule a check to see if all ACKs have arrived.
         TimerUtils.schedule(() -> checkAcksAndContinue(groupName, txId), 100);
     }
 
-    private void sendWithRetry(String replicaName, Message msg, String txId, int attempt) {
-        String groupName = findGroupForReplica(replicaName);
-        if (groupName == null) return;
-
-        BankServerInterface replica = groups.get(groupName).get(replicaName);
-        if (replica == null) return; // Replica was removed.
-
-        try {
-            replica.receiveMessage(msg);
-        } catch (RemoteException e) {
-            // If the call fails, retry after 2 seconds.
-            System.err.println("Failed to send tx " + txId + " to " + replicaName + " (Attempt " + (attempt + 1) + ")");
-            if (attempt < 2) { // Total attempts: 1 initial + 2 retries = 3
-                TimerUtils.schedule(() -> sendWithRetry(replicaName, msg, txId, attempt + 1), 2000L);
-            } else {
-                // After ~5 seconds of failures, remove the replica.
-                System.err.println("Replica " + replicaName + " failed. Removing from group " + groupName + ".");
-                removeReplica(groupName, replicaName);
-                // Mark as acknowledged to not block the broadcast.
-                ack(txId, replicaName);
+    private void sendWithRetry(String groupName, String replicaName, Message msg, String txId, int attempt) {
+        sendExecutor.submit(() -> {
+            BankServerInterface replica = getReplicaStub(groupName, replicaName);
+            if (replica == null) {
+                return;
             }
-        }
+            try {
+                replica.receiveMessage(msg);
+            } catch (RemoteException e) {
+                System.err.println("Error sending tx " + txId + " to " + replicaName + ": " + e.getMessage());
+            }
+
+            if (attempt == 0) {
+                // Schedule a resend after 2 seconds if still waiting for ACK.
+                TimerUtils.schedule(() -> {
+                    if (isAckPending(txId, replicaName)) {
+                        System.err.println("No ACK for tx " + txId + " from " + replicaName + " after 2s. Resending.");
+                        sendWithRetry(groupName, replicaName, msg, txId, attempt + 1);
+                    }
+                }, 2000L);
+
+                // Schedule failure handling after 5 seconds.
+                TimerUtils.schedule(() -> {
+                    if (isAckPending(txId, replicaName)) {
+                        System.err.println("Replica " + replicaName + " failed to ACK tx " + txId + " within 5s. Removing.");
+                        removeReplica(groupName, replicaName);
+                        ack(txId, replicaName);
+                    }
+                }, 5000L);
+            }
+        });
     }
     
     @Override
@@ -199,6 +212,19 @@ public class MDServerImpl extends UnicastRemoteObject implements MDServerInterfa
             // Notify remaining members of the change.
             updateMembershipForGroup(groupName);
         }
+    }
+
+    private BankServerInterface getReplicaStub(String groupName, String replicaName) {
+        Map<String, BankServerInterface> members = groups.get(groupName);
+        if (members == null) {
+            return null;
+        }
+        return members.get(replicaName);
+    }
+
+    private boolean isAckPending(String txId, String replicaName) {
+        Set<String> waiting = pendingAcks.get(txId);
+        return waiting != null && waiting.contains(replicaName);
     }
 
     private void updateMembershipForGroup(String groupName) {

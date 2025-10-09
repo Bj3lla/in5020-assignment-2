@@ -45,7 +45,7 @@ public class CurrencyConverter {
         if (rate == null) {
             throw new IllegalArgumentException("Unsupported currency: " + currency);
         }
-        return amount / rate;
+        return amount * rate;
     }
 
     /**
@@ -59,7 +59,7 @@ public class CurrencyConverter {
         if (rate == null) {
             throw new IllegalArgumentException("Unsupported currency: " + currency);
         }
-        return amount * rate;
+        return amount / rate;
     }
 
     /**
