@@ -149,8 +149,8 @@ public class BankServerImpl extends UnicastRemoteObject implements BankServerInt
 
     @Override
     public synchronized String deposit(String currency, double amount) throws RemoteException {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Deposit amount must be positive.");
+        if (amount == 0.0) {
+            throw new IllegalArgumentException("Deposit amount cannot be zero.");
         }
         String command = "deposit " + currency + " " + amount;
         // Unique ID format: "<Bank server_instance_name> <outstanding_counter>"
